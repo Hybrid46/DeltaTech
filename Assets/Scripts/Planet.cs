@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using static StaticUtils;
-using UnityEngine.UIElements;
 
 public class Planet : Singleton<Planet>
 {
@@ -71,7 +70,7 @@ public class Planet : Singleton<Planet>
 
         biomeSettings.ForEach(setting => { setting.noiseSettings.offset = new Vector2(Random.Range(0, 999999), Random.Range(0, 999999)); });
 
-        idwPattern = GetIDWPattern(idwStepSize, idwRange);
+        idwPattern = GetPattern(idwStepSize, idwRange);
 
         exectime = DateTime.Now;
 
@@ -196,8 +195,9 @@ public class Planet : Singleton<Planet>
         mesh.triangles = triangles;
         mesh.uv = uv;
         SplitVerticesWithUV(mesh);
+        FlattenTriangleNormals(mesh);
         mesh.RecalculateTangents();
-        mesh.RecalculateNormals();
+        //mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         mesh.Optimize();
         return mesh;
@@ -230,29 +230,6 @@ public class Planet : Singleton<Planet>
         }
 
         return heightValue / inverseDistance;
-    }
-
-    //Builds 2D MxM matrix pattern for distance based IDW
-    private Vector3[] GetIDWPattern(float stepSize, float range)
-    {
-        int matrixSize = Mathf.CeilToInt(range / stepSize);
-        List<Vector3> pattern = new List<Vector3>(matrixSize * matrixSize);
-
-        for (float y = -range; y <= range; y += stepSize)
-        {
-            for (float x = -range; x <= range; x += stepSize)
-            {
-                Vector3 currentPos = new Vector3(x, 0.0f, y);
-
-                if (currentPos == Vector3.zero) continue; //we must skip the center point because the IDW on 0 zero distance will cause some problem -> zero distance weight will be extra powerful and division by zero!
-
-                if (Vector3.Distance(Vector3.zero, currentPos) <= range) pattern.Add(currentPos);
-            }
-        }
-
-        pattern.TrimExcess();
-
-        return pattern.ToArray();
     }
 
     private void OnDrawGizmos()

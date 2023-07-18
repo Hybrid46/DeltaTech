@@ -1,10 +1,6 @@
-using NUnit.Framework.Internal;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Unity.Burst;
-using Unity.Collections;
-using Unity.Jobs;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -269,6 +265,35 @@ public static class StaticUtils
         mesh.triangles = mergedTriangles;
     }
 
+    public static void FlattenTriangleNormals(Mesh mesh)
+    {
+        int[] triangles = mesh.triangles;
+        Vector3[] vertices = mesh.vertices;
+        Vector3[] normals = new Vector3[mesh.vertices.Length];
+
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            int vertexIndex1 = triangles[i];
+            int vertexIndex2 = triangles[i + 1];
+            int vertexIndex3 = triangles[i + 2];
+
+            Vector3 vertex1 = vertices[vertexIndex1];
+            Vector3 vertex2 = vertices[vertexIndex2];
+            Vector3 vertex3 = vertices[vertexIndex3];
+
+            Vector3 edge1 = vertex2 - vertex1;
+            Vector3 edge2 = vertex3 - vertex1;
+
+            Vector3 normal = Vector3.Cross(edge1, edge2).normalized;
+
+            normals[vertexIndex1] = normal;
+            normals[vertexIndex2] = normal;
+            normals[vertexIndex3] = normal;
+
+            mesh.SetNormals(normals);
+        }
+    }
+
     /*
     public static Mesh GenerateDetailMesh(Vector3 worldPosition, int width, int height, float unitLength)
     {
@@ -317,41 +342,51 @@ public static class StaticUtils
 
     #endregion
 
-    /*
-    //small square
-    public static float GetHeightMapIDW(Vector2 point, float unitLength)
+    //IDW
+    public static float GetHeightMapIDW(Vector3 position, Vector3[] pattern, Bounds bounds)
     {
-        Vector2Int[] corners = new Vector2Int[4]
-        {
-            new Vector2Int(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y)),
-            new Vector2Int(Mathf.CeilToInt(point.x), Mathf.CeilToInt(point.y)),
-            new Vector2Int(Mathf.FloorToInt(point.x), Mathf.CeilToInt(point.y)),
-            new Vector2Int(Mathf.CeilToInt(point.x), Mathf.FloorToInt(point.y))
-        };
-
         //Inverse distance weighted interpolation
         //https://gisgeography.com/inverse-distance-weighting-idw-interpolation/
 
-        float value = 0;
+        float heightValue = 0;
         float inverseDistance = 0;
 
-        for (int c = 0; c < corners.Length; c++)
+        for (int p = 0; p < pattern.Length; p++)
         {
-            float distance = Vector2.Distance(corners[c], point);
+            Vector3 curentPos = position + pattern[p];
+            float distance = Vector3.Distance(curentPos, position);
 
-            //the corner is out of heith map bounds
-            if (corners[c].x < 0 || corners[c].x > mapSize.x || corners[c].y < 0 || corners[c].y > mapSize.z) continue;
+            //check map bounds
+            if (!bounds.Contains(curentPos)) continue;
 
-            //let's check if the point is on the corner
-            if (distance < unitLength) return heightMap[corners[c].x, corners[c].y];
-            //or
-            //distance += 0.0001f;
-            distance = distance * distance * distance * distance;
-            value += heightMap[corners[c].x, corners[c].y] / distance;
+            distance = distance / distance;
+            heightValue += //height sampling and dividing by distance -> for example: planet.GetBiomeHeight(curentPos) / distance;
             inverseDistance += 1.0f / distance;
         }
 
-        return value / inverseDistance;
+        return heightValue / inverseDistance;
     }
-    */
+
+    //Builds 2D MxM matrix pattern, distance based, circle
+    public static Vector3[] GetPattern(float stepSize, float range)
+    {
+        int matrixSize = Mathf.CeilToInt(range / stepSize);
+        List<Vector3> pattern = new List<Vector3>(matrixSize * matrixSize);
+
+        for (float y = -range; y <= range; y += stepSize)
+        {
+            for (float x = -range; x <= range; x += stepSize)
+            {
+                Vector3 currentPos = new Vector3(x, 0.0f, y);
+
+                if (currentPos == Vector3.zero) continue; //we must skip the center point because the IDW on 0 zero distance will cause some problem -> zero distance weight will be extra powerful and division by zero!
+
+                if (Vector3.Distance(Vector3.zero, currentPos) <= range) pattern.Add(currentPos);
+            }
+        }
+
+        pattern.TrimExcess();
+
+        return pattern.ToArray();
+    }
 }

@@ -44,6 +44,8 @@ public class Planet : Singleton<Planet>
     public BiomeSettings baseSettings;
     public List<BiomeSettings> biomeSettings;
 
+    public bool generateNavmeshes = false;
+
     public bool debugWorldBounds = true;
     public bool debugChunkBounds = true;
     public bool debugHeightMap = true;
@@ -94,7 +96,7 @@ public class Planet : Singleton<Planet>
 
         Debug.Log("Chunks generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
-        NavMeshManager.instance.GenerateNavMeshForPlanet(this);
+        if (generateNavmeshes) NavMeshManager.instance.GenerateNavMeshForPlanet(this);
 
         OnChunksGenerated += ChunksGenerated;
         OnChunksGenerated.Invoke();

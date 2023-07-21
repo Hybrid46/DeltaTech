@@ -37,7 +37,7 @@ public class Planet : Singleton<Planet>
     public static Vector2Int mapSize = new Vector2Int(256 + 1, 256 + 1);
     public static Vector2Int chunkSize = new Vector2Int(16, 16);
 
-    public Material terrainMaterial;
+    public GameObject terrainChunk;
 
     public Dictionary<Vector3, Chunk> ChunkCells = new Dictionary<Vector3, Chunk>();
 
@@ -89,14 +89,9 @@ public class Planet : Singleton<Planet>
             }
         }
 
-        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
-        {
-            chunk.Value.SetMeshTo(false, false);
-        }
-
         Debug.Log("Chunks generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
-        if (generateNavmeshes) NavMeshManager.instance.GenerateNavMeshForPlanet(this);
+        if (generateNavmeshes) ChunkCells[Vector3.zero].myNavMeshSurface.BuildNavMesh();
 
         OnChunksGenerated += ChunksGenerated;
         OnChunksGenerated.Invoke();
@@ -118,25 +113,21 @@ public class Planet : Singleton<Planet>
 
     public Chunk CreateChunk(Vector3 worldPosition)
     {
-        GameObject chunkObj = new GameObject();
-        MeshFilter meshFilter = chunkObj.AddComponent<MeshFilter>();
-        MeshRenderer meshRenderer = chunkObj.AddComponent<MeshRenderer>();
-        MeshCollider meshCollider = chunkObj.AddComponent<MeshCollider>();
+        GameObject chunkObj = Instantiate(terrainChunk);
 
         chunkObj.transform.parent = transform;
         chunkObj.transform.position = worldPosition;
         chunkObj.transform.localPosition = Vector3.zero;
         chunkObj.layer = LayerMask.NameToLayer("Planet");
-        chunkObj.name = "Chunk " + worldPosition;
+        chunkObj.name = "TerrainChunk " + worldPosition;
 
-        Chunk currentChunk = chunkObj.AddComponent<Chunk>();
+        Chunk currentChunk = chunkObj.GetComponent<Chunk>();
         currentChunk.chunkWorldPos = worldPosition;
 
-        meshRenderer.material = terrainMaterial;
         currentChunk.SimpleMesh = GenerateMesh(worldPosition);
-        meshFilter.sharedMesh = currentChunk.SimpleMesh;
+        currentChunk.GetReferences();
+        currentChunk.myMeshFilter.sharedMesh = currentChunk.SimpleMesh;
 
-        currentChunk.Init();
         worldBounds.Encapsulate(currentChunk.myRenderer.bounds);
 
         return currentChunk;

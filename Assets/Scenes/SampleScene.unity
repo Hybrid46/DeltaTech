@@ -503,6 +503,7 @@ MonoBehaviour:
       amplitude: 1
       minHeight: 0
       maxHeight: 10
+    prefabSettings: []
   biomeSettings:
   - noiseSettings:
       offset: {x: 0, y: 0}
@@ -510,17 +511,53 @@ MonoBehaviour:
       amplitude: 0.1
       minHeight: 0
       maxHeight: 20
+    prefabSettings:
+    - prefab: {fileID: 0}
+      chance: 0
+      height:
+        Min: 0
+        Max: 0
+      rotation:
+        Min: {x: 0, y: 0, z: 0}
+        Max: {x: 0, y: 0, z: 0}
+      scale:
+        Min: {x: 0, y: 0, z: 0}
+        Max: {x: 0, y: 0, z: 0}
+    - prefab: {fileID: 0}
+      chance: 0
+      height:
+        Min: 0
+        Max: 0
+      rotation:
+        Min: {x: 0, y: 0, z: 0}
+        Max: {x: 0, y: 0, z: 0}
+      scale:
+        Min: {x: 0, y: 0, z: 0}
+        Max: {x: 0, y: 0, z: 0}
+    - prefab: {fileID: 0}
+      chance: 0
+      height:
+        Min: 0
+        Max: 0
+      rotation:
+        Min: {x: 0, y: 0, z: 0}
+        Max: {x: 0, y: 0, z: 0}
+      scale:
+        Min: {x: 0, y: 0, z: 0}
+        Max: {x: 0, y: 0, z: 0}
   - noiseSettings:
       offset: {x: 0, y: 0}
       scale: 10
       amplitude: 0.05
       minHeight: 0
       maxHeight: 40
-  generateNavmeshes: 1
-  debugWorldBounds: 1
-  debugChunkBounds: 1
-  debugHeightMap: 1
-  debugIDWPattern: 1
+    prefabSettings: []
+  generateNavmeshes: 0
+  debugWorldBounds: 0
+  debugChunkBounds: 0
+  debugHeightMap: 0
+  debugIDWPattern: 0
+  debugPoisson: 1
   debugGradient:
     serializedVersion: 2
     key0: {r: 1, g: 0, b: 0, a: 1}

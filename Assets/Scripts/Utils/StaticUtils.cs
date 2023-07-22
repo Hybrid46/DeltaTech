@@ -1,15 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public static class StaticUtils
 {
-    public static float Remap(float input, float inputMin, float inputMax, float targetMin, float targetMax)
+    [Serializable]
+    public struct MinMax<T1, T2>
     {
-        return targetMin + (input - inputMin) * (targetMax - targetMin) / (inputMax - inputMin);
+        public T1 Min;
+        public T2 Max;
+
+        public MinMax(T1 min, T2 max)
+        {
+            Min = min;
+            Max = max;
+        }
     }
+
+    public static float Remap(float input, float inputMin, float inputMax, float targetMin, float targetMax) => targetMin + (input - inputMin) * (targetMax - targetMin) / (inputMax - inputMin);
 
     public static int Array3DTo1D(int x, int y, int z, int xMax, int yMax) => (z * xMax * yMax) + (y * xMax) + x;
 
@@ -47,39 +56,7 @@ public static class StaticUtils
         return new Vector3(x, y, z);
     }
 
-    public static T GetCopyOf<T>(this Component comp, T other) where T : Component
-    {
-        Type type = comp.GetType();
-        if (type != other.GetType()) return null;
-
-        //maybe static should be skipped!
-        BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Default;
-        PropertyInfo[] pinfos = type.GetProperties(flags);
-
-        foreach (var pinfo in pinfos)
-        {
-            if (pinfo.CanWrite)
-            {
-                try
-                {
-                    pinfo.SetValue(comp, pinfo.GetValue(other, null), null);
-                }
-                catch
-                {
-                    //It doesn't matter if we can't write here! This means the field not exist here.
-                }
-            }
-        }
-
-        FieldInfo[] finfos = type.GetFields(flags);
-
-        foreach (var finfo in finfos)
-        {
-            finfo.SetValue(comp, finfo.GetValue(other));
-        }
-        return comp as T;
-    }
-
+    //Return local coords!
     public static List<Vector2> GeneratePoissonPoints(float minDistance, Vector2 bounds, int maxAttempts)
     {
         List<Vector2> points = new List<Vector2>();
@@ -140,6 +117,116 @@ public static class StaticUtils
 
         return points;
     }
+
+    //Returns Local coords!
+    public static List<Vector3> GetPoissonPoints(float minDistance, Bounds bounds, int maxAttempts)
+    {
+        List<Vector3> points = new List<Vector3>();
+        float cellSize = minDistance / Mathf.Sqrt(2);
+        int[,] grid = new int[Mathf.CeilToInt(bounds.size.x / cellSize), Mathf.CeilToInt(bounds.size.z / cellSize)];
+        List<Vector3> activeList = new List<Vector3>();
+
+        Vector3 firstPoint = new Vector3(Random.Range(0, bounds.size.x), 0.0f, Random.Range(0, bounds.size.z));
+        points.Add(firstPoint);
+        activeList.Add(firstPoint);
+        grid[Mathf.FloorToInt(firstPoint.x / cellSize), Mathf.FloorToInt(firstPoint.z / cellSize)] = points.Count;
+
+        while (activeList.Count > 0)
+        {
+            int randomIndex = Random.Range(0, activeList.Count);
+            Vector3 point = activeList[randomIndex];
+            bool foundPoint = false;
+
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                float angle = Random.Range(0, Mathf.PI * 2);
+                float radius = Random.Range(minDistance, minDistance * 2);
+                Vector3 newPoint = new Vector3(point.x + radius * Mathf.Cos(angle), 0.0f, point.z + radius * Mathf.Sin(angle));
+
+                if (newPoint.x >= 0 && newPoint.x < bounds.size.x && newPoint.z >= 0 && newPoint.z < bounds.size.z)
+                {
+                    int cellX = Mathf.FloorToInt(newPoint.x / cellSize);
+                    int cellY = Mathf.FloorToInt(newPoint.z / cellSize);
+                    bool canPlace = true;
+
+                    for (int x = Mathf.Max(0, cellX - 2); x < Mathf.Min(grid.GetLength(0), cellX + 3); x++)
+                    {
+                        for (int y = Mathf.Max(0, cellY - 2); y < Mathf.Min(grid.GetLength(1), cellY + 3); y++)
+                        {
+                            if (grid[x, y] > 0 && Vector3.Distance(points[grid[x, y] - 1], newPoint) < minDistance)
+                            {
+                                canPlace = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (canPlace)
+                    {
+                        points.Add(newPoint);
+                        activeList.Add(newPoint);
+                        grid[cellX, cellY] = points.Count;
+                        foundPoint = true;
+                    }
+                }
+            }
+
+            if (!foundPoint)
+            {
+                activeList.RemoveAt(randomIndex);
+            }
+        }
+        
+        return points;
+    }
+
+    /*
+    /Maybe this one can be used to get a randomized pattern like formations for multiple agents
+    public static List<Vector3> GetPoissonPoints(Chunk chunk, float minDistance = 1.0f, int attempts = 10)
+    {
+        List<Vector3> points = new List<Vector3>();
+        Bounds bounds = chunk.myRenderer.bounds;
+
+        Vector3 initialPoint = new Vector3(Random.Range(bounds.min.x, bounds.max.x), bounds.center.y, Random.Range(bounds.min.z, bounds.max.z));
+        points.Add(initialPoint);
+
+        Queue<Vector3> activePoints = new Queue<Vector3>();
+        activePoints.Enqueue(initialPoint);
+
+        float sqrMinDistance = minDistance * minDistance;
+
+        while (activePoints.Count > 0)
+        {
+            Vector3 activePoint = activePoints.Dequeue();
+
+            for (int i = 0; i < attempts; i++)
+            {
+                Vector3 offset = Random.onUnitSphere * minDistance;
+                Vector3 candidate = activePoint + new Vector3(offset.x, 0f, offset.y);
+
+                if (bounds.Contains(candidate) && !IsTooClose(candidate, sqrMinDistance))
+                {
+                    points.Add(candidate);
+                    activePoints.Enqueue(candidate);
+                }
+            }
+        }
+
+        bool IsTooClose(Vector3 point, float sqrMinDistance)
+        {
+            foreach (Vector3 p in points)
+            {
+                if ((point - p).sqrMagnitude < sqrMinDistance)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return points;
+    }
+    */
 
     public static Texture2D GradientToTexture(Gradient gradient, int width)
     {

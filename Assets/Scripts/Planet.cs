@@ -11,6 +11,7 @@ public class Planet : Singleton<Planet>
     public struct BiomeSettings
     {
         public NoiseSettings noiseSettings;
+        public List<PrefabSettings> prefabSettings;
     }
 
     [Serializable]
@@ -32,6 +33,16 @@ public class Planet : Singleton<Planet>
         }
     }
 
+    [Serializable]
+    public struct PrefabSettings
+    {
+        public GameObject prefab;
+        [Range(0.0f, 1.0f)] public float chance;
+        public MinMax<float, float> height;
+        public MinMax<Vector3, Vector3> rotation;
+        public MinMax<Vector3, Vector3> scale;
+    }
+
     public UnityAction OnChunksGenerated;
 
     public static Vector2Int mapSize = new Vector2Int(256 + 1, 256 + 1);
@@ -50,6 +61,8 @@ public class Planet : Singleton<Planet>
     public bool debugChunkBounds = true;
     public bool debugHeightMap = true;
     public bool debugIDWPattern = true;
+    private List<Vector3> poissonSamples = new List<Vector3>();
+    public bool debugPoisson = false;
     public Gradient debugGradient;
 
     private Bounds worldBounds = new Bounds();
@@ -89,7 +102,24 @@ public class Planet : Singleton<Planet>
             }
         }
 
+        ChunkCells.TrimExcess();
+
         Debug.Log("Chunks generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
+
+        //Prefab Generation
+        exectime = DateTime.Now;
+
+        for (int z = 0; z < mapSize.y - 1; z += chunkSize.y)
+        {
+            for (int x = 0; x < mapSize.x - 1; x += chunkSize.x)
+            {
+                Vector3 worldPosition = new Vector3(x, 0, z);
+
+                PrefabInstancer prefabInstancer = new PrefabInstancer(ChunkCells[worldPosition]);
+            }
+        }
+
+        Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
         if (generateNavmeshes) ChunkCells[Vector3.zero].myNavMeshSurface.BuildNavMesh();
 
@@ -97,19 +127,21 @@ public class Planet : Singleton<Planet>
         OnChunksGenerated.Invoke();
     }
 
-    private float GetBaseHeight(Vector3 position) => Mathf.Clamp01(GetHeight(position, baseSettings.noiseSettings));
+    private float GetBaseHeight(Vector3 position) => Mathf.Clamp01(GetNoiseHeight(position, baseSettings.noiseSettings));
 
-    private float GetBiomeHeight(Vector3 position) => GetHeight(position, biomeSettings[GetBiomeIndex(position)].noiseSettings);
+    private float GetBiomeHeight(Vector3 position) => GetNoiseHeight(position, biomeSettings[GetBiomeIndex(position)].noiseSettings);
 
     private int GetBiomeIndex(Vector3 position) => (biomeSettings.Count - 1) * (int)GetBaseHeight(position);
 
-    private float GetHeight(Vector3 position, NoiseSettings noiseSettings)
+    private float GetNoiseHeight(Vector3 position, NoiseSettings noiseSettings)
     {
         float xCoord = position.x / mapSize.x * noiseSettings.scale + noiseSettings.offset.x;
         float zCoord = position.z / mapSize.y * noiseSettings.scale + noiseSettings.offset.y;
 
         return Mathf.PerlinNoise(xCoord, zCoord) * noiseSettings.maxHeight + noiseSettings.minHeight;
     }
+
+    public float GetHeight(Vector3 position) => GetHeightMapIDW(position, idwPattern);
 
     public Chunk CreateChunk(Vector3 worldPosition)
     {
@@ -146,8 +178,8 @@ public class Planet : Singleton<Planet>
             for (int w = 0; w <= chunkSize.x; w++)
             {
                 Vector3 wPosition = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
-                //float height = GetBiomeHeight(wPosition);
-                float height = GetHeightMapIDW(wPosition, idwPattern);
+                float height = GetHeight(wPosition);
+
                 vertices[i] = new Vector3(worldPosition.x + w, height, worldPosition.z + d);
                 i++;
             }
@@ -193,6 +225,7 @@ public class Planet : Singleton<Planet>
         //mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         mesh.Optimize();
+        mesh.UploadMeshData(true);
         return mesh;
     }
 
@@ -291,6 +324,35 @@ public class Planet : Singleton<Planet>
                 Gizmos.color += new Color(0.5f, 0.5f, 0.5f, 0.1f);
                 Gizmos.DrawCube(idwPatternPoint + Vector3.down * 10, Vector3.one * 0.25f);
             }
+        }
+
+        //poisson point debugger
+        if (debugPoisson)
+        {
+            Vector3 debugChunk = new Vector3(48f, 0f, 32f);
+
+            if (ChunkCells.ContainsKey(debugChunk) && ChunkCells[debugChunk] != null)
+            {
+                if (poissonSamples == null || poissonSamples.Count == 0)
+                {
+                    poissonSamples = GetPoissonPoints(1.0f, ChunkCells[debugChunk].myRenderer.bounds, 100);
+                    poissonSamples.TrimExcess();
+                }
+
+                //local to world and get heights
+                for (int p = 0; p < poissonSamples.Count; p++)
+                {
+                    poissonSamples[p] += ChunkCells[debugChunk].myRenderer.bounds.min;
+                    poissonSamples[p] = new Vector3(poissonSamples[p].x, GetHeight(poissonSamples[p]), poissonSamples[p].z);
+                }
+
+                foreach (Vector3 point in poissonSamples) Gizmos.DrawWireCube(point, Vector3.one * 0.5f);
+            }
+        }
+        else
+        {
+            poissonSamples.Clear();
+            poissonSamples.TrimExcess();
         }
     }
 }

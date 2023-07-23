@@ -523,6 +523,7 @@ MonoBehaviour:
       scale:
         Min: {x: 0, y: 0, z: 0}
         Max: {x: 0, y: 0, z: 0}
+      alignToNormal: 0
     - prefab: {fileID: 0}
       chance: 0
       height:
@@ -534,6 +535,7 @@ MonoBehaviour:
       scale:
         Min: {x: 0, y: 0, z: 0}
         Max: {x: 0, y: 0, z: 0}
+      alignToNormal: 0
     - prefab: {fileID: 0}
       chance: 0
       height:
@@ -545,6 +547,7 @@ MonoBehaviour:
       scale:
         Min: {x: 0, y: 0, z: 0}
         Max: {x: 0, y: 0, z: 0}
+      alignToNormal: 0
   - noiseSettings:
       offset: {x: 0, y: 0}
       scale: 10
@@ -552,7 +555,7 @@ MonoBehaviour:
       minHeight: 0
       maxHeight: 40
     prefabSettings: []
-  generateNavmeshes: 0
+  generateNavmeshes: 1
   debugWorldBounds: 0
   debugChunkBounds: 0
   debugHeightMap: 0

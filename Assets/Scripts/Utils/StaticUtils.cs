@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -176,7 +178,8 @@ public static class StaticUtils
                 activeList.RemoveAt(randomIndex);
             }
         }
-        
+
+        points.TrimExcess();
         return points;
     }
 
@@ -379,6 +382,37 @@ public static class StaticUtils
 
             mesh.SetNormals(normals);
         }
+    }
+
+    public static void FlattenTriangleNormalsParallel(Mesh mesh)
+    {
+        int[] triangles = mesh.triangles;
+        Vector3[] vertices = mesh.vertices;
+
+        Vector3[] normals = new Vector3[vertices.Length];
+
+        Parallel.For(0, triangles.Length / 3, i =>
+        {
+            int triangleIndex = i * 3;
+            int vertexIndex1 = triangles[triangleIndex];
+            int vertexIndex2 = triangles[triangleIndex + 1];
+            int vertexIndex3 = triangles[triangleIndex + 2];
+
+            Vector3 vertex1 = vertices[vertexIndex1];
+            Vector3 vertex2 = vertices[vertexIndex2];
+            Vector3 vertex3 = vertices[vertexIndex3];
+
+            Vector3 edge1 = vertex2 - vertex1;
+            Vector3 edge2 = vertex3 - vertex1;
+
+            Vector3 normal = math.normalize(math.cross(edge1, edge2));
+
+            normals[vertexIndex1] = normal;
+            normals[vertexIndex2] = normal;
+            normals[vertexIndex3] = normal;
+        });
+
+        mesh.SetNormals(normals);
     }
 
     /*

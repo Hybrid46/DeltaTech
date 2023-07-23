@@ -13,6 +13,22 @@ public class Planet : Singleton<Planet>
     {
         public NoiseSettings noiseSettings;
         public List<PrefabSettings> prefabSettings;
+        [HideInInspector] public float totalChance { get; private set; }
+
+        public void SortByChances()
+        {
+            prefabSettings.Sort((a, b) => b.chance.CompareTo(a.chance));
+            CalculateTotalChance();
+        }
+
+        private void CalculateTotalChance()
+        {
+            totalChance = 0f;
+            foreach (PrefabSettings prefabSetting in prefabSettings)
+            {
+                totalChance += prefabSetting.chance;
+            }
+        }
     }
 
     [Serializable]
@@ -80,7 +96,6 @@ public class Planet : Singleton<Planet>
 
     public void InitializePlanet()
     {
-        //Fill up height map
         DateTime exectime = DateTime.Now;
 
         baseSettings.noiseSettings = new NoiseSettings(Vector2.zero, baseSettings.noiseSettings.scale, baseSettings.noiseSettings.amplitude, 0, biomeSettings.Count);
@@ -89,7 +104,7 @@ public class Planet : Singleton<Planet>
 
         idwPattern = GetPattern(idwStepSize, idwRange);
 
-        exectime = DateTime.Now;
+        Debug.Log("Biomes Initialized in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
         //Chunk Generation
         exectime = DateTime.Now;
@@ -114,13 +129,77 @@ public class Planet : Singleton<Planet>
         //Prefab Generation
         exectime = DateTime.Now;
 
-        for (int z = 0; z < mapSize.y - 1; z += chunkSize.y)
-        {
-            for (int x = 0; x < mapSize.x - 1; x += chunkSize.x)
-            {
-                Vector3 worldPosition = new Vector3(x, 0, z);
+        //organize lists by spawn chances and calc maxChance
+        biomeSettings.ForEach((setting) => { setting.SortByChances(); });
 
-                PrefabInstancer prefabInstancer = new PrefabInstancer(ChunkCells[worldPosition]);
+        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+        {
+            //get poisson disc sampling points then spawn prefabs by chances
+            poissonSamples = GetPoissonPoints(1.0f, chunk.Value.myRenderer.bounds, 100);
+
+            //local to world and get heights
+            for (int p = 0; p < poissonSamples.Count; p++)
+            {
+                poissonSamples[p] += chunk.Value.myRenderer.bounds.min;
+                poissonSamples[p] = new Vector3(poissonSamples[p].x, GetHeight(poissonSamples[p]), poissonSamples[p].z);
+            }
+
+            foreach (Vector3 point in poissonSamples)
+            {
+                int biomeIndex = GetBiomeIndex(point);
+                float randomValue = Random.Range(0f, biomeSettings[biomeIndex].totalChance);
+                List<Bounds> placedBounds = new List<Bounds>();
+                GameObject selectedPrefab = null;
+                PrefabSettings selectedPrefabSettings = new PrefabSettings();
+
+                foreach (PrefabSettings chancedPrefab in biomeSettings[biomeIndex].prefabSettings)
+                {
+                    if (randomValue <= chancedPrefab.chance)
+                    {
+                        selectedPrefab = chancedPrefab.prefab;
+                        selectedPrefabSettings = chancedPrefab;
+                        break;
+                    }
+                    randomValue -= chancedPrefab.chance;
+                }
+
+                // Instantiate the selected prefab on the terrain
+                if (selectedPrefab != null)
+                {
+                    RaycastHit hit;
+                    if (Physics.Raycast(point + Vector3.up * 1000f, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Planet")))
+                    {
+                        Vector3 spawnPosition = hit.point;
+
+                        Quaternion randomRotation = Quaternion.Euler(Random.Range(selectedPrefabSettings.rotation.Min.x, selectedPrefabSettings.rotation.Max.x),
+                                                                     Random.Range(selectedPrefabSettings.rotation.Min.y, selectedPrefabSettings.rotation.Max.y),
+                                                                     Random.Range(selectedPrefabSettings.rotation.Min.z, selectedPrefabSettings.rotation.Max.z));
+
+                        if (selectedPrefabSettings.alignToNormal) randomRotation *= Quaternion.FromToRotation(Vector3.up, hit.normal);
+
+                        Vector3 randomScaleVector = new Vector3(Random.Range(selectedPrefabSettings.scale.Min.x, selectedPrefabSettings.scale.Max.x),
+                                                                Random.Range(selectedPrefabSettings.scale.Min.y, selectedPrefabSettings.scale.Max.y),
+                                                                Random.Range(selectedPrefabSettings.scale.Min.z, selectedPrefabSettings.scale.Max.z));
+
+                        Bounds bounds = new Bounds(spawnPosition, selectedPrefab.GetComponent<MeshRenderer>().bounds.size);
+                        bool canBePlaced = true;
+
+                        for (int b = 0; b < placedBounds.Count; b++)
+                        {
+                            if (placedBounds[b].Intersects(bounds))
+                            {
+                                canBePlaced = false;
+                                break;
+                            }
+                        }
+
+                        if (canBePlaced)
+                        {
+                            GameObject spawnedPrefab = Instantiate(selectedPrefab, spawnPosition, randomRotation);
+                            spawnedPrefab.transform.localScale = randomScaleVector;
+                        }
+                    }
+                }
             }
         }
 
@@ -162,7 +241,7 @@ public class Planet : Singleton<Planet>
     private void GenerateChunkMeshes(Vector3 worldPosition, Chunk currentChunk)
     {
         currentChunk.SimpleMesh = GenerateMesh(worldPosition);
-        currentChunk.myMeshFilter.sharedMesh = currentChunk.SimpleMesh;
+        currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, true);
     }
 
     private Mesh GenerateMesh(Vector3 worldPosition)

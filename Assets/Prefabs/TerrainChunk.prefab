@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 3094047000549435676}
   - component: {fileID: 7890124342261430942}
   - component: {fileID: 1374148211307890732}
-  m_Layer: 0
+  - component: {fileID: -4960942888369226662}
+  m_Layer: 6
   m_Name: TerrainChunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -138,3 +139,25 @@ MonoBehaviour:
   SimpleMesh: {fileID: 0}
   DetailMesh: {fileID: 0}
   meshDetail: 0
+--- !u!64 &-4960942888369226662
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3589620711608005247}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}

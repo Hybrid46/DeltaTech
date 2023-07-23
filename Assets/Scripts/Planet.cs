@@ -136,6 +136,7 @@ public class Planet : Singleton<Planet>
         {
             //get poisson disc sampling points then spawn prefabs by chances
             poissonSamples = GetPoissonPoints(1.0f, chunk.Value.myRenderer.bounds, 100);
+            List<Bounds> placedBounds = new List<Bounds>();
 
             //local to world and get heights
             for (int p = 0; p < poissonSamples.Count; p++)
@@ -148,7 +149,6 @@ public class Planet : Singleton<Planet>
             {
                 int biomeIndex = GetBiomeIndex(point);
                 float randomValue = Random.Range(0f, biomeSettings[biomeIndex].totalChance);
-                List<Bounds> placedBounds = new List<Bounds>();
                 GameObject selectedPrefab = null;
                 PrefabSettings selectedPrefabSettings = new PrefabSettings();
 
@@ -181,7 +181,8 @@ public class Planet : Singleton<Planet>
                                                                 Random.Range(selectedPrefabSettings.scale.Min.y, selectedPrefabSettings.scale.Max.y),
                                                                 Random.Range(selectedPrefabSettings.scale.Min.z, selectedPrefabSettings.scale.Max.z));
 
-                        Bounds bounds = new Bounds(spawnPosition, selectedPrefab.GetComponent<MeshRenderer>().bounds.size);
+                        Bounds bounds = selectedPrefab.GetComponent<MeshRenderer>().bounds;
+
                         bool canBePlaced = true;
 
                         for (int b = 0; b < placedBounds.Count; b++)
@@ -197,6 +198,7 @@ public class Planet : Singleton<Planet>
                         {
                             GameObject spawnedPrefab = Instantiate(selectedPrefab, spawnPosition, randomRotation);
                             spawnedPrefab.transform.localScale = randomScaleVector;
+                            placedBounds.Add(bounds);
                         }
                     }
                 }

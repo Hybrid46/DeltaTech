@@ -13,12 +13,13 @@ public class Planet : Singleton<Planet>
     {
         public NoiseSettings noiseSettings;
         public List<PrefabBiomeSettings> prefabBiomeSettings;
-        public float totalChance { get; private set; }
+        [HideInInspector] public float totalChance;
 
         public void SortByChances()
         {
             prefabBiomeSettings.Sort((a, b) => b.chance.CompareTo(a.chance));
             CalculateTotalChance();
+            //Debug.Log($"Total Chance: {totalChance}");
         }
 
         private void CalculateTotalChance()

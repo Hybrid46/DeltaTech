@@ -13,22 +13,22 @@ public class Planet : Singleton<Planet>
     {
         public NoiseSettings noiseSettings;
         public List<PrefabBiomeSettings> prefabBiomeSettings;
-        [HideInInspector] public float totalChance;
+        public float totalChance => CalculateTotalChance();
 
         public void SortByChances()
         {
             prefabBiomeSettings.Sort((a, b) => b.chance.CompareTo(a.chance));
-            CalculateTotalChance();
-            //Debug.Log($"Total Chance: {totalChance}");
         }
 
-        private void CalculateTotalChance()
+        private float CalculateTotalChance()
         {
-            totalChance = 0f;
+            float total = 0f;
             foreach (PrefabBiomeSettings prefabSetting in prefabBiomeSettings)
             {
-                totalChance += prefabSetting.chance;
+                total += prefabSetting.chance;
             }
+            Debug.Log($"Total Chance: {total}");
+            return total;
         }
     }
 
@@ -278,7 +278,11 @@ public class Planet : Singleton<Planet>
         foreach (Vector3 point in poissonSamples)
         {
             int biomeIndex = GetBiomeIndex(point);
-            float randomValue = Random.Range(0f, biomeSettings[biomeIndex].totalChance);
+            //float randomValue = Random.Range(0f, biomeSettings[biomeIndex].totalChance);
+            float randomValue = Random.value * biomeSettings[biomeIndex].totalChance;
+
+            Debug.Log($"Point: {point}, Biome Index: {biomeIndex}, Random Value: {randomValue}");
+
             GameObject selectedPrefab = null;
             PrefabSettings selectedPrefabSettings = new PrefabSettings();
 

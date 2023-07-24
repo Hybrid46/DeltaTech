@@ -97,6 +97,10 @@ public class Planet : Singleton<Planet>
     private const float idwRange = 4.0f;
     private Vector3[] idwPattern;
 
+    //debug
+    //private List<Bounds> placedPrefabBoundsDebug = new List<Bounds>();
+    //private List<Bounds> overlappedPrefabBoundsDebug = new List<Bounds>();
+
     private void Start()
     {
         InitializePlanet();
@@ -258,7 +262,10 @@ public class Planet : Singleton<Planet>
     {
         //get poisson disc sampling points then spawn prefabs by chances
         poissonSamples = GetPoissonPoints(1.0f, chunk.myRenderer.bounds, 100);
+        Debug.Log($"Poisson points {poissonSamples.Count}");
         List<Bounds> placedBounds = new List<Bounds>();
+        int spawnLayer = LayerMask.GetMask("Planet");
+        (int placed, int overlapping, int rayMiss) debug = (0, 0, 0);
 
         //local to world and get heights
         for (int p = 0; p < poissonSamples.Count; p++)
@@ -289,7 +296,7 @@ public class Planet : Singleton<Planet>
             if (selectedPrefab != null)
             {
                 RaycastHit hit;
-                if (Physics.Raycast(point + Vector3.up * 1000f, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Planet")))
+                if (Physics.Raycast(point + 1000.0f * Vector3.up, Vector3.down, out hit, Mathf.Infinity, spawnLayer))
                 {
                     Vector3 spawnPosition = hit.point;
 
@@ -303,13 +310,19 @@ public class Planet : Singleton<Planet>
                                                             Random.Range(selectedPrefabSettings.scale.Min.y, selectedPrefabSettings.scale.Max.y),
                                                             Random.Range(selectedPrefabSettings.scale.Min.z, selectedPrefabSettings.scale.Max.z));
 
-                    Bounds bounds = selectedPrefab.GetComponent<MeshRenderer>().bounds;
+                    Bounds rendererBounds = selectedPrefab.GetComponent<MeshRenderer>().bounds;
+                    Vector3 prefabScale = selectedPrefab.transform.localScale;
+                    float prefabRadius = GetSphereRadius(prefabScale);
 
                     bool canBePlaced = true;
 
-                    for (int b = 0; b < placedBounds.Count; b++)
+                    for (int b = 0; b < placedBounds.Count; b++) //TODO: check only in neighbour chunks!
                     {
-                        if (placedBounds[b].Intersects(bounds))
+                        Vector3 existingPosition = placedBounds[b].center;
+                        Vector3 existingScale = placedBounds[b].size;
+                        float existingRadius = GetSphereRadius(existingScale);
+
+                        if (CheckSphereOverlap(spawnPosition, prefabRadius, existingPosition, existingRadius))
                         {
                             canBePlaced = false;
                             break;
@@ -320,11 +333,21 @@ public class Planet : Singleton<Planet>
                     {
                         GameObject spawnedPrefab = Instantiate(selectedPrefab, spawnPosition, randomRotation);
                         spawnedPrefab.transform.localScale = randomScaleVector;
-                        placedBounds.Add(bounds);
+                        placedBounds.Add(spawnedPrefab.GetComponent<MeshRenderer>().bounds);
+                        debug.placed++;
                     }
+                    else
+                    {
+                        debug.overlapping++;
+                    }
+                }
+                else
+                {
+                    debug.rayMiss++;
                 }
             }
         }
+        Debug.Log($"Chunk -> {chunk.chunkWorldPos} Placed {debug.placed} overlapping {debug.overlapping} ray miss {debug.rayMiss}.");
     }
 
     public void ChunksGenerated()
@@ -425,6 +448,17 @@ public class Planet : Singleton<Planet>
 
     public float GetHeight(Vector3 position) => GetHeightMapIDWParallel(position, idwPattern);
 
+    private float GetSphereRadius(Vector3 scale) => Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
+
+    private bool CheckSphereOverlap(Vector3 positionA, float radiusA, Vector3 positionB, float radiusB)
+    {
+        // Custom collision check between two spheres
+        // If the distance between the two sphere centers is less than the sum of their radii, return true; otherwise, return false
+        float distanceSquared = (positionA - positionB).sqrMagnitude;
+        float combinedRadii = radiusA + radiusB;
+        return distanceSquared < combinedRadii * combinedRadii;
+    }
+
     private void OnDrawGizmos()
     {
         if (debugChunkBounds)
@@ -519,5 +553,29 @@ public class Planet : Singleton<Planet>
         {
             poissonSamples.Clear();
         }
+
+        /*
+        //debug placed prefab bounding boxes
+        if (placedPrefabBoundsDebug != null && placedPrefabBoundsDebug.Count > 0)
+        {
+            Gizmos.color = Color.magenta;
+            foreach (Bounds bounds in placedPrefabBoundsDebug)
+            {
+                Gizmos.DrawWireCube(bounds.center, bounds.size);
+            }
+        }
+        */
+
+        /*
+        //debug overlapping prefab bounding boxes
+        if (overlappedPrefabBoundsDebug != null && overlappedPrefabBoundsDebug.Count > 0)
+        {
+            Gizmos.color = Color.magenta;
+            foreach (Bounds bounds in overlappedPrefabBoundsDebug)
+            {
+                Gizmos.DrawWireCube(bounds.center, bounds.size);
+            }
+        }
+        */
     }
 }

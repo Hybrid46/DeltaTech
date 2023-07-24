@@ -12,19 +12,19 @@ public class Planet : Singleton<Planet>
     public struct BiomeSettings
     {
         public NoiseSettings noiseSettings;
-        public List<PrefabSettings> prefabSettings;
-        [HideInInspector] public float totalChance { get; private set; }
+        public List<PrefabBiomeSettings> prefabBiomeSettings;
+        public float totalChance { get; private set; }
 
         public void SortByChances()
         {
-            prefabSettings.Sort((a, b) => b.chance.CompareTo(a.chance));
+            prefabBiomeSettings.Sort((a, b) => b.chance.CompareTo(a.chance));
             CalculateTotalChance();
         }
 
         private void CalculateTotalChance()
         {
             totalChance = 0f;
-            foreach (PrefabSettings prefabSetting in prefabSettings)
+            foreach (PrefabBiomeSettings prefabSetting in prefabBiomeSettings)
             {
                 totalChance += prefabSetting.chance;
             }
@@ -51,11 +51,17 @@ public class Planet : Singleton<Planet>
     }
 
     [Serializable]
-    public struct PrefabSettings
+    public struct PrefabBiomeSettings
     {
         public GameObject prefab;
         [Range(0.0f, 1.0f)] public float chance;
         public MinMax<float, float> height;
+    }
+
+    [Serializable]
+    public struct PrefabSettings
+    {
+        public GameObject prefab;
         public MinMax<Vector3, Vector3> rotation;
         public MinMax<Vector3, Vector3> scale;
         public bool alignToNormal;
@@ -72,6 +78,8 @@ public class Planet : Singleton<Planet>
 
     public BiomeSettings baseSettings;
     public List<BiomeSettings> biomeSettings;
+    public List<PrefabSettings> prefabSettings;
+    private Dictionary<GameObject, PrefabSettings> prefabSettingsLUT;
 
     public bool generateNavmeshes = false;
 
@@ -126,89 +134,26 @@ public class Planet : Singleton<Planet>
 
         Debug.Log("Chunks generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
+        //Build Nav meshes
+        if (generateNavmeshes) ChunkCells[Vector3.zero].myNavMeshSurface.BuildNavMesh();
+
         //Prefab Generation
         exectime = DateTime.Now;
 
         //organize lists by spawn chances and calc maxChance
         biomeSettings.ForEach((setting) => { setting.SortByChances(); });
 
+        //Fill prefab settings look up table
+        prefabSettingsLUT = new Dictionary<GameObject, PrefabSettings>(prefabSettings.Count);
+        prefabSettings.ForEach((setting) => { prefabSettingsLUT.Add(setting.prefab, setting); });
+
+        //spawning
         foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
         {
-            //get poisson disc sampling points then spawn prefabs by chances
-            poissonSamples = GetPoissonPoints(1.0f, chunk.Value.myRenderer.bounds, 100);
-            List<Bounds> placedBounds = new List<Bounds>();
-
-            //local to world and get heights
-            for (int p = 0; p < poissonSamples.Count; p++)
-            {
-                poissonSamples[p] += chunk.Value.myRenderer.bounds.min;
-                poissonSamples[p] = new Vector3(poissonSamples[p].x, GetHeight(poissonSamples[p]), poissonSamples[p].z);
-            }
-
-            foreach (Vector3 point in poissonSamples)
-            {
-                int biomeIndex = GetBiomeIndex(point);
-                float randomValue = Random.Range(0f, biomeSettings[biomeIndex].totalChance);
-                GameObject selectedPrefab = null;
-                PrefabSettings selectedPrefabSettings = new PrefabSettings();
-
-                foreach (PrefabSettings chancedPrefab in biomeSettings[biomeIndex].prefabSettings)
-                {
-                    if (randomValue <= chancedPrefab.chance)
-                    {
-                        selectedPrefab = chancedPrefab.prefab;
-                        selectedPrefabSettings = chancedPrefab;
-                        break;
-                    }
-                    randomValue -= chancedPrefab.chance;
-                }
-
-                // Instantiate the selected prefab on the terrain
-                if (selectedPrefab != null)
-                {
-                    RaycastHit hit;
-                    if (Physics.Raycast(point + Vector3.up * 1000f, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Planet")))
-                    {
-                        Vector3 spawnPosition = hit.point;
-
-                        Quaternion randomRotation = Quaternion.Euler(Random.Range(selectedPrefabSettings.rotation.Min.x, selectedPrefabSettings.rotation.Max.x),
-                                                                     Random.Range(selectedPrefabSettings.rotation.Min.y, selectedPrefabSettings.rotation.Max.y),
-                                                                     Random.Range(selectedPrefabSettings.rotation.Min.z, selectedPrefabSettings.rotation.Max.z));
-
-                        if (selectedPrefabSettings.alignToNormal) randomRotation *= Quaternion.FromToRotation(Vector3.up, hit.normal);
-
-                        Vector3 randomScaleVector = new Vector3(Random.Range(selectedPrefabSettings.scale.Min.x, selectedPrefabSettings.scale.Max.x),
-                                                                Random.Range(selectedPrefabSettings.scale.Min.y, selectedPrefabSettings.scale.Max.y),
-                                                                Random.Range(selectedPrefabSettings.scale.Min.z, selectedPrefabSettings.scale.Max.z));
-
-                        Bounds bounds = selectedPrefab.GetComponent<MeshRenderer>().bounds;
-
-                        bool canBePlaced = true;
-
-                        for (int b = 0; b < placedBounds.Count; b++)
-                        {
-                            if (placedBounds[b].Intersects(bounds))
-                            {
-                                canBePlaced = false;
-                                break;
-                            }
-                        }
-
-                        if (canBePlaced)
-                        {
-                            GameObject spawnedPrefab = Instantiate(selectedPrefab, spawnPosition, randomRotation);
-                            spawnedPrefab.transform.localScale = randomScaleVector;
-                            placedBounds.Add(bounds);
-                        }
-                    }
-                }
-            }
+            SpawnPrefabs(chunk.Value);
         }
 
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
-
-        //Build Nav meshes
-        if (generateNavmeshes) ChunkCells[Vector3.zero].myNavMeshSurface.BuildNavMesh();
 
         //Release memory for meshes
         foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
@@ -307,6 +252,79 @@ public class Planet : Singleton<Planet>
         mesh.RecalculateBounds();
         mesh.Optimize();
         return mesh;
+    }
+
+    private void SpawnPrefabs(Chunk chunk)
+    {
+        //get poisson disc sampling points then spawn prefabs by chances
+        poissonSamples = GetPoissonPoints(1.0f, chunk.myRenderer.bounds, 100);
+        List<Bounds> placedBounds = new List<Bounds>();
+
+        //local to world and get heights
+        for (int p = 0; p < poissonSamples.Count; p++)
+        {
+            poissonSamples[p] += chunk.myRenderer.bounds.min;
+            poissonSamples[p] = new Vector3(poissonSamples[p].x, GetHeight(poissonSamples[p]), poissonSamples[p].z);
+        }
+
+        foreach (Vector3 point in poissonSamples)
+        {
+            int biomeIndex = GetBiomeIndex(point);
+            float randomValue = Random.Range(0f, biomeSettings[biomeIndex].totalChance);
+            GameObject selectedPrefab = null;
+            PrefabSettings selectedPrefabSettings = new PrefabSettings();
+
+            foreach (PrefabBiomeSettings chancedPrefab in biomeSettings[biomeIndex].prefabBiomeSettings)
+            {
+                if (randomValue <= chancedPrefab.chance)
+                {
+                    selectedPrefab = chancedPrefab.prefab;
+                    selectedPrefabSettings = prefabSettingsLUT[chancedPrefab.prefab];
+                    break;
+                }
+                randomValue -= chancedPrefab.chance;
+            }
+
+            // Instantiate the selected prefab on the terrain
+            if (selectedPrefab != null)
+            {
+                RaycastHit hit;
+                if (Physics.Raycast(point + Vector3.up * 1000f, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Planet")))
+                {
+                    Vector3 spawnPosition = hit.point;
+
+                    Quaternion randomRotation = Quaternion.Euler(Random.Range(selectedPrefabSettings.rotation.Min.x, selectedPrefabSettings.rotation.Max.x),
+                                                                 Random.Range(selectedPrefabSettings.rotation.Min.y, selectedPrefabSettings.rotation.Max.y),
+                                                                 Random.Range(selectedPrefabSettings.rotation.Min.z, selectedPrefabSettings.rotation.Max.z));
+
+                    if (selectedPrefabSettings.alignToNormal) randomRotation *= Quaternion.FromToRotation(Vector3.up, hit.normal);
+
+                    Vector3 randomScaleVector = new Vector3(Random.Range(selectedPrefabSettings.scale.Min.x, selectedPrefabSettings.scale.Max.x),
+                                                            Random.Range(selectedPrefabSettings.scale.Min.y, selectedPrefabSettings.scale.Max.y),
+                                                            Random.Range(selectedPrefabSettings.scale.Min.z, selectedPrefabSettings.scale.Max.z));
+
+                    Bounds bounds = selectedPrefab.GetComponent<MeshRenderer>().bounds;
+
+                    bool canBePlaced = true;
+
+                    for (int b = 0; b < placedBounds.Count; b++)
+                    {
+                        if (placedBounds[b].Intersects(bounds))
+                        {
+                            canBePlaced = false;
+                            break;
+                        }
+                    }
+
+                    if (canBePlaced)
+                    {
+                        GameObject spawnedPrefab = Instantiate(selectedPrefab, spawnPosition, randomRotation);
+                        spawnedPrefab.transform.localScale = randomScaleVector;
+                        placedBounds.Add(bounds);
+                    }
+                }
+            }
+        }
     }
 
     public void ChunksGenerated()

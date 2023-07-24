@@ -503,7 +503,7 @@ MonoBehaviour:
       amplitude: 1
       minHeight: 0
       maxHeight: 10
-    prefabSettings: []
+    prefabBiomeSettings: []
   biomeSettings:
   - noiseSettings:
       offset: {x: 0, y: 0}
@@ -511,92 +511,78 @@ MonoBehaviour:
       amplitude: 0.1
       minHeight: 0
       maxHeight: 20
-    prefabSettings:
+    prefabBiomeSettings:
     - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
         type: 3}
       chance: 0.2
       height:
         Min: 0
         Max: 1000
-      rotation:
-        Min: {x: 0, y: 0, z: 0}
-        Max: {x: 0, y: 360, z: 0}
-      scale:
-        Min: {x: 0.5, y: 0.5, z: 0.5}
-        Max: {x: 1.5, y: 1.5, z: 1.5}
-      alignToNormal: 0
     - prefab: {fileID: 919132149155446097, guid: 343d3ee231e865747b8e046271dbf835,
         type: 3}
-      chance: 0.4
+      chance: 0.6
       height:
-        Min: 0
-        Max: 20
-      rotation:
-        Min: {x: 0, y: 0, z: 0}
-        Max: {x: 360, y: 360, z: 360}
-      scale:
-        Min: {x: 0.5, y: 0.5, z: 0.5}
-        Max: {x: 1.5, y: 1.5, z: 1.5}
-      alignToNormal: 1
+        Min: 20
+        Max: 1000
     - prefab: {fileID: 919132149155446097, guid: 44446a21b754bb2458f197a16fddcdf4,
         type: 3}
-      chance: 0.4
+      chance: 0.2
       height:
         Min: 0
         Max: 1000
-      rotation:
-        Min: {x: 0, y: 0, z: 0}
-        Max: {x: 360, y: 360, z: 360}
-      scale:
-        Min: {x: 0.5, y: 0.5, z: 0.5}
-        Max: {x: 1.5, y: 1.5, z: 1.5}
-      alignToNormal: 1
   - noiseSettings:
       offset: {x: 0, y: 0}
       scale: 10
       amplitude: 0.05
       minHeight: 0
       maxHeight: 40
-    prefabSettings:
+    prefabBiomeSettings:
     - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
         type: 3}
-      chance: 0.6
+      chance: 0.5
       height:
         Min: 0
         Max: 1000
-      rotation:
-        Min: {x: 0, y: 0, z: 0}
-        Max: {x: 0, y: 360, z: 0}
-      scale:
-        Min: {x: 0.5, y: 0.5, z: 0.5}
-        Max: {x: 1.5, y: 1.5, z: 1.5}
-      alignToNormal: 0
     - prefab: {fileID: 919132149155446097, guid: 59db3dba497048b4ba342eaeb2ae83ed,
         type: 3}
-      chance: 0.2
+      chance: 1
       height:
         Min: 0
         Max: 1000
-      rotation:
-        Min: {x: 0, y: 0, z: 0}
-        Max: {x: 360, y: 360, z: 360}
-      scale:
-        Min: {x: 0.5, y: 0.5, z: 0.5}
-        Max: {x: 1.5, y: 1.5, z: 1.5}
-      alignToNormal: 1
-    - prefab: {fileID: 919132149155446097, guid: 44446a21b754bb2458f197a16fddcdf4,
-        type: 3}
-      chance: 0.2
-      height:
-        Min: 0
-        Max: 1000
-      rotation:
-        Min: {x: 0, y: 0, z: 0}
-        Max: {x: 360, y: 360, z: 360}
-      scale:
-        Min: {x: 0.5, y: 0.5, z: 0.5}
-        Max: {x: 1.5, y: 1.5, z: 1.5}
-      alignToNormal: 1
+  prefabSettings:
+  - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
+      type: 3}
+    rotation:
+      Min: {x: 0, y: 0, z: 0}
+      Max: {x: 0, y: 360, z: 0}
+    scale:
+      Min: {x: 0.5, y: 0.5, z: 0.5}
+      Max: {x: 1.5, y: 1.5, z: 1.5}
+    alignToNormal: 0
+  - prefab: {fileID: 919132149155446097, guid: 343d3ee231e865747b8e046271dbf835, type: 3}
+    rotation:
+      Min: {x: 0, y: 0, z: 0}
+      Max: {x: 360, y: 360, z: 360}
+    scale:
+      Min: {x: 0.5, y: 0.5, z: 0.5}
+      Max: {x: 1.5, y: 1.5, z: 1.5}
+    alignToNormal: 0
+  - prefab: {fileID: 919132149155446097, guid: 44446a21b754bb2458f197a16fddcdf4, type: 3}
+    rotation:
+      Min: {x: 0, y: 0, z: 0}
+      Max: {x: 360, y: 360, z: 360}
+    scale:
+      Min: {x: 0.5, y: 0.5, z: 0.5}
+      Max: {x: 1.5, y: 1.5, z: 1.5}
+    alignToNormal: 0
+  - prefab: {fileID: 919132149155446097, guid: 59db3dba497048b4ba342eaeb2ae83ed, type: 3}
+    rotation:
+      Min: {x: 0, y: 0, z: 0}
+      Max: {x: 360, y: 360, z: 360}
+    scale:
+      Min: {x: 0.5, y: 0.5, z: 0.5}
+      Max: {x: 1.5, y: 1.5, z: 1.5}
+    alignToNormal: 0
   generateNavmeshes: 1
   debugWorldBounds: 0
   debugChunkBounds: 0

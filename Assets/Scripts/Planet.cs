@@ -337,6 +337,7 @@ public class Planet : Singleton<Planet>
                     {
                         GameObject spawnedPrefab = Instantiate(selectedPrefab, spawnPosition, randomRotation);
                         spawnedPrefab.transform.localScale = randomScaleVector;
+                        spawnedPrefab.transform.SetParent(chunk.myTransform);
                         placedBounds.Add(spawnedPrefab.GetComponent<MeshRenderer>().bounds);
                         debug.placed++;
                     }

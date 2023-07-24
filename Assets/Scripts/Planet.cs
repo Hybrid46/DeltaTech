@@ -262,7 +262,7 @@ public class Planet : Singleton<Planet>
     {
         //get poisson disc sampling points then spawn prefabs by chances
         poissonSamples = GetPoissonPoints(1.0f, chunk.myRenderer.bounds, 100);
-        Debug.Log($"Poisson points {poissonSamples.Count}");
+        //Debug.Log($"Poisson points {poissonSamples.Count}");
         List<Bounds> placedBounds = new List<Bounds>();
         int spawnLayer = LayerMask.GetMask("Planet");
         (int placed, int overlapping, int rayMiss) debug = (0, 0, 0);
@@ -310,7 +310,6 @@ public class Planet : Singleton<Planet>
                                                             Random.Range(selectedPrefabSettings.scale.Min.y, selectedPrefabSettings.scale.Max.y),
                                                             Random.Range(selectedPrefabSettings.scale.Min.z, selectedPrefabSettings.scale.Max.z));
 
-                    Bounds rendererBounds = selectedPrefab.GetComponent<MeshRenderer>().bounds;
                     Vector3 prefabScale = selectedPrefab.transform.localScale;
                     float prefabRadius = GetSphereRadius(prefabScale);
 

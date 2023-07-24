@@ -690,7 +690,7 @@ MonoBehaviour:
     prefabBiomeSettings:
     - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
         type: 3}
-      chance: 0.2
+      chance: 0.25
       height:
         Min: 0
         Max: 1000
@@ -702,7 +702,7 @@ MonoBehaviour:
         Max: 1000
     - prefab: {fileID: 919132149155446097, guid: 44446a21b754bb2458f197a16fddcdf4,
         type: 3}
-      chance: 0.2
+      chance: 0.15
       height:
         Min: 0
         Max: 1000
@@ -721,7 +721,7 @@ MonoBehaviour:
         Max: 1000
     - prefab: {fileID: 919132149155446097, guid: 59db3dba497048b4ba342eaeb2ae83ed,
         type: 3}
-      chance: 1
+      chance: 0.5
       height:
         Min: 0
         Max: 1000

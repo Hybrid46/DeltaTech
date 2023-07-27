@@ -23,6 +23,8 @@ public class OrbitCamera : NetworkBehaviour
 
     private void Start()
     {
+        if (!IsOwner) return;
+
         currentDistance = offset.magnitude;
         currentVerticalAngle = Mathf.Asin(offset.normalized.y) * Mathf.Rad2Deg;
         currentHorizontalAngle = Mathf.Atan2(offset.x, -offset.z) * Mathf.Rad2Deg;
@@ -31,12 +33,15 @@ public class OrbitCamera : NetworkBehaviour
 
     private void Update()
     {
-        //right mouse button is held down
+        if (!IsOwner) return;
+
         isRightMouseButtonHeld = Input.GetMouseButton(1);
     }
 
     private void LateUpdate()
     {
+        if (!IsOwner) return;
+
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
 
         float horizontalInput = 0;

@@ -82,6 +82,8 @@ public class Planet : Singleton<Planet>
     public List<PrefabSettings> prefabSettings;
     private Dictionary<GameObject, PrefabSettings> prefabSettingsLUT;
 
+    public float poissonSampleMinDistance = 5.0f;
+
     public bool generateNavmeshes = false;
 
     public bool debugWorldBounds = true;
@@ -274,7 +276,7 @@ public class Planet : Singleton<Planet>
         foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
         {
             //get poisson disc sampling points then spawn prefabs by chances
-            poissonSamples = GetPoissonPoints(1.0f, chunk.Value.myRenderer.bounds, 100);
+            poissonSamples = GetPoissonPoints(poissonSampleMinDistance, chunk.Value.myRenderer.bounds, 100);
             //Debug.Log($"Poisson points {poissonSamples.Count}");
             //(int placed, int overlapping, int rayMiss) debug = (0, 0, 0);
 

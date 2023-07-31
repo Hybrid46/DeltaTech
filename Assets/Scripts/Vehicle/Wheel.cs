@@ -112,7 +112,7 @@ public class CustomWheelSuspension : MonoBehaviour
 
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, -transform.up, out hit, wheelRadius))
+        if (Physics.Raycast(transform.position, -transform.up, out hit, wheelRadius * 10))
         {
             if (isSteering) Steering(steering);
             GetSuspensionForce(hit);
@@ -193,13 +193,13 @@ public class CustomWheelSuspension : MonoBehaviour
 
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, -transform.up, out hit, wheelRadius))
+        if (Physics.Raycast(transform.position, -transform.up, out hit, wheelRadius * 10))
         {
-            GizmosExtend.DrawLine(transform.position, transform.position + (-transform.up * wheelRadius), Color.red);
+            GizmosExtend.DrawLine(transform.position, transform.position + (-transform.up * wheelRadius * 10), Color.red);
         }
         else
         {
-            GizmosExtend.DrawLine(transform.position, transform.position + (-transform.up * wheelRadius), Color.magenta);
+            GizmosExtend.DrawLine(transform.position, transform.position + (-transform.up * wheelRadius * 10), Color.magenta);
         }
     }
 }

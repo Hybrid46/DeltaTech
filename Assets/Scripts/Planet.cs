@@ -70,7 +70,7 @@ public class Planet : Singleton<Planet>
     public UnityAction OnChunksGenerated;
 
     public static Vector2Int mapSize = new Vector2Int(256 + 1, 256 + 1);
-    public static Vector2Int chunkSize = new Vector2Int(16, 16);
+    public static Vector2Int chunkSize = new Vector2Int(64, 64);
 
     public GameObject terrainChunk;
 

@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -252,6 +250,34 @@ public static class StaticUtils
     public static void RemoveLayerFromCameraCullingMask(Camera camera, string layerName) => camera.cullingMask &= ~(1 << LayerMask.NameToLayer(layerName));
 
     #region Mesh modify functions
+
+    public static Mesh CopyMesh(Mesh sourceMesh)
+    {
+        // Create a copy of the mesh
+        Mesh newMesh = new Mesh();
+        newMesh.vertices = sourceMesh.vertices;
+        newMesh.triangles = sourceMesh.triangles;
+        //newMesh.normals = sourceMesh.normals;
+        newMesh.uv = sourceMesh.uv;
+        //newMesh.tangents = sourceMesh.tangents;
+        //newMesh.colors = sourceMesh.colors;
+        //newMesh.colors32 = sourceMesh.colors32;
+        //newMesh.uv2 = sourceMesh.uv2;
+        //newMesh.uv3 = sourceMesh.uv3;
+        //newMesh.uv4 = sourceMesh.uv4;
+        //newMesh.subMeshCount = sourceMesh.subMeshCount;
+
+        /*
+        for (int i = 0; i < sourceMesh.subMeshCount; i++)
+        {
+            newMesh.SetTriangles(sourceMesh.GetTriangles(i), i);
+        }
+        */
+
+        // Assign the new mesh to the destination MeshFilter
+        return newMesh;
+    }
+
     public static void SplitVerticesWithUV(Mesh mesh)
     {
         Vector3[] vertices = mesh.vertices;
@@ -382,37 +408,6 @@ public static class StaticUtils
 
             mesh.SetNormals(normals);
         }
-    }
-
-    public static void FlattenTriangleNormalsParallel(Mesh mesh)
-    {
-        int[] triangles = mesh.triangles;
-        Vector3[] vertices = mesh.vertices;
-
-        Vector3[] normals = new Vector3[vertices.Length];
-
-        Parallel.For(0, triangles.Length / 3, i =>
-        {
-            int triangleIndex = i * 3;
-            int vertexIndex1 = triangles[triangleIndex];
-            int vertexIndex2 = triangles[triangleIndex + 1];
-            int vertexIndex3 = triangles[triangleIndex + 2];
-
-            Vector3 vertex1 = vertices[vertexIndex1];
-            Vector3 vertex2 = vertices[vertexIndex2];
-            Vector3 vertex3 = vertices[vertexIndex3];
-
-            Vector3 edge1 = vertex2 - vertex1;
-            Vector3 edge2 = vertex3 - vertex1;
-
-            Vector3 normal = math.normalize(math.cross(edge1, edge2));
-
-            normals[vertexIndex1] = normal;
-            normals[vertexIndex2] = normal;
-            normals[vertexIndex3] = normal;
-        });
-
-        mesh.SetNormals(normals);
     }
 
     /*

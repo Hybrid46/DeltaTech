@@ -305,7 +305,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   topSpeed: 10
-  motorTorque: 20
+  motorTorque: 50
   isMotor: 0
   isSteering: 1
 --- !u!23 &104489308
@@ -661,7 +661,7 @@ Transform:
   m_GameObject: {fileID: 386857486}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.392, y: 0.86, z: -1.08}
+  m_LocalPosition: {x: 50, y: 26.33, z: 50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1196,7 +1196,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   topSpeed: 10
-  motorTorque: 20
+  motorTorque: 50
   isMotor: 1
   isSteering: 0
 --- !u!23 &614315880
@@ -1528,7 +1528,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   topSpeed: 10
-  motorTorque: 20
+  motorTorque: 50
   isMotor: 1
   isSteering: 0
 --- !u!23 &803914670
@@ -1878,7 +1878,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1424431642
 Transform:
   m_ObjectHideFlags: 0
@@ -1980,7 +1980,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   topSpeed: 10
-  motorTorque: 20
+  motorTorque: 50
   isMotor: 0
   isSteering: 1
 --- !u!23 &1540011268
@@ -2389,7 +2389,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1859021745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2491,6 +2491,7 @@ MonoBehaviour:
       Min: {x: 0.5, y: 0.5, z: 0.5}
       Max: {x: 1.5, y: 1.5, z: 1.5}
     alignToNormal: 0
+  poissonSampleMinDistance: 5
   generateNavmeshes: 1
   debugWorldBounds: 0
   debugChunkBounds: 0

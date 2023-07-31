@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using static StaticUtils;
-using System.Threading.Tasks;
 
 public class Planet : Singleton<Planet>
 {
@@ -155,7 +154,19 @@ public class Planet : Singleton<Planet>
         prefabSettings.ForEach((setting) => { prefabSettingsLUT.Add(setting.prefab, setting); });
 
         //spawning
-        SpawnPrefabs();
+        int spawnLayer = LayerMask.GetMask("Planet");
+        Dictionary<Chunk, List<Bounds>> placedBounds = new Dictionary<Chunk, List<Bounds>>();
+
+        //init placed Bounds -> prepare for spatial partitioning
+        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+        {
+            placedBounds.Add(chunk.Value, new List<Bounds>());
+        }
+
+        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+        {
+            SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
+        }
 
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
@@ -254,205 +265,118 @@ public class Planet : Singleton<Planet>
         mesh.triangles = triangles;
         mesh.uv = uv;
         SplitVerticesWithUV(mesh);
-        FlattenTriangleNormalsParallel(mesh);
-        //mesh.RecalculateNormals();
+        //FlattenTriangleNormals(mesh);
+        mesh.RecalculateNormals();
         mesh.RecalculateTangents();
         mesh.RecalculateBounds();
         mesh.Optimize();
         return mesh;
     }
 
-    private void SpawnPrefabs()
+    private void SpawnPrefabs(Chunk chunk, Dictionary<Chunk, List<Bounds>> placedBounds, int spawnLayer)
     {
-        int spawnLayer = LayerMask.GetMask("Planet");
-        Dictionary<Chunk, List<Bounds>> placedBounds = new Dictionary<Chunk, List<Bounds>>();
+        //get poisson disc sampling points then spawn prefabs by chances
+        poissonSamples = GetPoissonPoints(poissonSampleMinDistance, chunk.myRenderer.bounds, 100);
+        //Debug.Log($"Poisson points {poissonSamples.Count}");
+        //(int placed, int overlapping, int rayMiss) debug = (0, 0, 0);
 
-        //init placed Bounds -> prepare for spatial partitioning
-        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+        //local to world and get heights
+        for (int p = 0; p < poissonSamples.Count; p++)
         {
-            placedBounds.Add(chunk.Value, new List<Bounds>());
+            poissonSamples[p] += chunk.myRenderer.bounds.min;
+            poissonSamples[p] = new Vector3(poissonSamples[p].x, GetHeight(poissonSamples[p]), poissonSamples[p].z);
         }
 
-        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+        foreach (Vector3 point in poissonSamples)
         {
-            //get poisson disc sampling points then spawn prefabs by chances
-            poissonSamples = GetPoissonPoints(poissonSampleMinDistance, chunk.Value.myRenderer.bounds, 100);
-            //Debug.Log($"Poisson points {poissonSamples.Count}");
-            //(int placed, int overlapping, int rayMiss) debug = (0, 0, 0);
+            int biomeIndex = GetBiomeIndex(point);
+            //float randomValue = Random.Range(0f, biomeSettings[biomeIndex].totalChance);
+            float randomValue = Random.value * biomeSettings[biomeIndex].totalChance;
 
-            //local to world and get heights
-            for (int p = 0; p < poissonSamples.Count; p++)
+            //Debug.Log($"Point: {point}, Biome Index: {biomeIndex}, Random Value: {randomValue}");
+
+            GameObject selectedPrefab = null;
+            PrefabSettings selectedPrefabSettings = new PrefabSettings();
+
+            foreach (PrefabBiomeSettings chancedPrefab in biomeSettings[biomeIndex].prefabBiomeSettings)
             {
-                poissonSamples[p] += chunk.Value.myRenderer.bounds.min;
-                poissonSamples[p] = new Vector3(poissonSamples[p].x, GetHeight(poissonSamples[p]), poissonSamples[p].z);
+                if (randomValue <= chancedPrefab.chance)
+                {
+                    selectedPrefab = chancedPrefab.prefab;
+                    selectedPrefabSettings = prefabSettingsLUT[chancedPrefab.prefab];
+                    break;
+                }
+                randomValue -= chancedPrefab.chance;
             }
 
-            foreach (Vector3 point in poissonSamples)
+            // Instantiate the selected prefab on the terrain
+            if (selectedPrefab != null)
             {
-                int biomeIndex = GetBiomeIndex(point);
-                //float randomValue = Random.Range(0f, biomeSettings[biomeIndex].totalChance);
-                float randomValue = Random.value * biomeSettings[biomeIndex].totalChance;
-
-                //Debug.Log($"Point: {point}, Biome Index: {biomeIndex}, Random Value: {randomValue}");
-
-                GameObject selectedPrefab = null;
-                PrefabSettings selectedPrefabSettings = new PrefabSettings();
-
-                foreach (PrefabBiomeSettings chancedPrefab in biomeSettings[biomeIndex].prefabBiomeSettings)
+                RaycastHit hit;
+                if (Physics.Raycast(point + 1000.0f * Vector3.up, Vector3.down, out hit, Mathf.Infinity, spawnLayer))
                 {
-                    if (randomValue <= chancedPrefab.chance)
+                    Vector3 spawnPosition = hit.point;
+
+                    Quaternion randomRotation = Quaternion.Euler(Random.Range(selectedPrefabSettings.rotation.Min.x, selectedPrefabSettings.rotation.Max.x),
+                                                                 Random.Range(selectedPrefabSettings.rotation.Min.y, selectedPrefabSettings.rotation.Max.y),
+                                                                 Random.Range(selectedPrefabSettings.rotation.Min.z, selectedPrefabSettings.rotation.Max.z));
+
+                    if (selectedPrefabSettings.alignToNormal) randomRotation *= Quaternion.FromToRotation(Vector3.up, hit.normal);
+
+                    Vector3 randomScaleVector = new Vector3(Random.Range(selectedPrefabSettings.scale.Min.x, selectedPrefabSettings.scale.Max.x),
+                                                            Random.Range(selectedPrefabSettings.scale.Min.y, selectedPrefabSettings.scale.Max.y),
+                                                            Random.Range(selectedPrefabSettings.scale.Min.z, selectedPrefabSettings.scale.Max.z));
+
+                    Vector3 prefabScale = selectedPrefab.transform.localScale;
+                    float prefabRadius = GetSphereRadius(prefabScale);
+
+                    bool canBePlaced = true;
+
+                    foreach (Vector3 neighbourPostion in GetNeighbourCoords(chunk))
                     {
-                        selectedPrefab = chancedPrefab.prefab;
-                        selectedPrefabSettings = prefabSettingsLUT[chancedPrefab.prefab];
-                        break;
-                    }
-                    randomValue -= chancedPrefab.chance;
-                }
+                        if (!ChunkCells.ContainsKey(neighbourPostion)) continue;
 
-                // Instantiate the selected prefab on the terrain
-                if (selectedPrefab != null)
-                {
-                    RaycastHit hit;
-                    if (Physics.Raycast(point + 1000.0f * Vector3.up, Vector3.down, out hit, Mathf.Infinity, spawnLayer))
-                    {
-                        Vector3 spawnPosition = hit.point;
-
-                        Quaternion randomRotation = Quaternion.Euler(Random.Range(selectedPrefabSettings.rotation.Min.x, selectedPrefabSettings.rotation.Max.x),
-                                                                     Random.Range(selectedPrefabSettings.rotation.Min.y, selectedPrefabSettings.rotation.Max.y),
-                                                                     Random.Range(selectedPrefabSettings.rotation.Min.z, selectedPrefabSettings.rotation.Max.z));
-
-                        if (selectedPrefabSettings.alignToNormal) randomRotation *= Quaternion.FromToRotation(Vector3.up, hit.normal);
-
-                        Vector3 randomScaleVector = new Vector3(Random.Range(selectedPrefabSettings.scale.Min.x, selectedPrefabSettings.scale.Max.x),
-                                                                Random.Range(selectedPrefabSettings.scale.Min.y, selectedPrefabSettings.scale.Max.y),
-                                                                Random.Range(selectedPrefabSettings.scale.Min.z, selectedPrefabSettings.scale.Max.z));
-
-                        Vector3 prefabScale = selectedPrefab.transform.localScale;
-                        float prefabRadius = GetSphereRadius(prefabScale);
-
-                        bool canBePlaced = true;
-
-                        foreach (Vector3 neighbourPostion in GetNeighbourCoords(chunk.Value))
+                        foreach (Bounds placedBound in placedBounds[ChunkCells[neighbourPostion]])
                         {
-                            if (!ChunkCells.ContainsKey(neighbourPostion)) continue;
+                            Vector3 existingPosition = placedBound.center;
+                            Vector3 existingScale = placedBound.size;
+                            float existingRadius = GetSphereRadius(existingScale);
 
-                            foreach (Bounds placedBound in placedBounds[ChunkCells[neighbourPostion]])
+                            if (CheckSphereOverlap(spawnPosition, prefabRadius, existingPosition, existingRadius))
                             {
-                                Vector3 existingPosition = placedBound.center;
-                                Vector3 existingScale = placedBound.size;
-                                float existingRadius = GetSphereRadius(existingScale);
-
-                                if (CheckSphereOverlap(spawnPosition, prefabRadius, existingPosition, existingRadius))
-                                {
-                                    canBePlaced = false;
-                                    break;
-                                }
+                                canBePlaced = false;
+                                break;
                             }
-
-                            if (canBePlaced == false) break;
                         }
 
-                        if (canBePlaced)
-                        {
-                            GameObject spawnedPrefab = Instantiate(selectedPrefab, spawnPosition, randomRotation);
-                            spawnedPrefab.transform.localScale = randomScaleVector;
-                            spawnedPrefab.transform.SetParent(chunk.Value.myTransform);
-                            placedBounds[chunk.Value].Add(spawnedPrefab.GetComponent<MeshRenderer>().bounds);
-                            //debug.placed++;
-                        }
-                        else
-                        {
-                            //debug.overlapping++;
-                        }
+                        if (canBePlaced == false) break;
+                    }
+
+                    if (canBePlaced)
+                    {
+                        GameObject spawnedPrefab = Instantiate(selectedPrefab, spawnPosition, randomRotation);
+                        spawnedPrefab.transform.localScale = randomScaleVector;
+                        spawnedPrefab.transform.SetParent(chunk.myTransform);
+                        placedBounds[chunk].Add(spawnedPrefab.GetComponent<MeshRenderer>().bounds);
+                        //debug.placed++;
                     }
                     else
                     {
-                        //debug.rayMiss++;
+                        //debug.overlapping++;
                     }
                 }
+                else
+                {
+                    //debug.rayMiss++;
+                }
             }
-            //Debug.Log($"Chunk -> {chunk.Value.chunkWorldPos} Placed {debug.placed} overlapping {debug.overlapping} ray miss {debug.rayMiss}.");
         }
+        //Debug.Log($"Chunk -> {chunk.Value.chunkWorldPos} Placed {debug.placed} overlapping {debug.overlapping} ray miss {debug.rayMiss}.");
     }
 
     public void ChunksGenerated()
     {
         Debug.Log("Chunks ready!");
-    }
-
-    private float GetHeightMapIDWParallel(Vector3 position, Vector3[] pattern)
-    {
-        //Inverse distance weighted interpolation
-        //https://gisgeography.com/inverse-distance-weighting-idw-interpolation/
-
-        int numThreads = System.Environment.ProcessorCount;
-        int chunkSize = Mathf.CeilToInt(pattern.Length / (float)numThreads);
-
-        float[] localHeightValues = new float[numThreads];
-        float[] localInverseDistances = new float[numThreads];
-
-        Parallel.For(0, numThreads, threadIndex =>
-        {
-            int startIndex = threadIndex * chunkSize;
-            int endIndex = Mathf.Min((threadIndex + 1) * chunkSize, pattern.Length);
-
-            float localHeightValue = 0;
-            float localInverseDistance = 0;
-
-            for (int p = startIndex; p < endIndex; p++)
-            {
-                Vector3 curentPos = position + pattern[p];
-                float distance = Vector3.Distance(curentPos, position);
-
-                // Check map bounds
-                if (curentPos.x >= 0.0f && curentPos.x <= mapSize.x && curentPos.y >= 0.0f && curentPos.y <= mapSize.y)
-                {
-                    distance = distance / distance;
-                    float biomeHeight = GetBiomeHeight(curentPos);
-
-                    localHeightValue += biomeHeight / distance;
-                    localInverseDistance += 1.0f / distance;
-                }
-            }
-
-            localHeightValues[threadIndex] = localHeightValue;
-            localInverseDistances[threadIndex] = localInverseDistance;
-        });
-
-        float heightValue = 0;
-        float inverseDistance = 0;
-
-        for (int i = 0; i < numThreads; i++)
-        {
-            heightValue += localHeightValues[i];
-            inverseDistance += localInverseDistances[i];
-        }
-
-        return heightValue / inverseDistance;
-    }
-
-    private float GetHeightMapIDW(Vector3 position, Vector3[] pattern)
-    {
-        //Inverse distance weighted interpolation
-        //https://gisgeography.com/inverse-distance-weighting-idw-interpolation/
-
-        float heightValue = 0;
-        float inverseDistance = 0;
-
-        for (int p = 0; p < pattern.Length; p++)
-        {
-            Vector3 curentPos = position + pattern[p];
-            float distance = Vector3.Distance(curentPos, position);
-
-            //check map bounds
-            if (curentPos.x < 0.0f || curentPos.x > mapSize.x || curentPos.y < 0.0f || curentPos.y > mapSize.y) continue;
-
-            distance = distance / distance;
-            heightValue += GetBiomeHeight(curentPos) / distance;
-            inverseDistance += 1.0f / distance;
-        }
-
-        return heightValue / inverseDistance;
     }
 
     //Chunk Functions-------------------------------------
@@ -497,7 +421,31 @@ public class Planet : Singleton<Planet>
         return Mathf.PerlinNoise(xCoord, zCoord) * noiseSettings.maxHeight + noiseSettings.minHeight;
     }
 
-    public float GetHeight(Vector3 position) => GetHeightMapIDWParallel(position, idwPattern);
+    public float GetHeight(Vector3 position) => GetHeightMapIDW(position, idwPattern);
+
+    private float GetHeightMapIDW(Vector3 position, Vector3[] pattern)
+    {
+        //Inverse distance weighted interpolation
+        //https://gisgeography.com/inverse-distance-weighting-idw-interpolation/
+
+        float heightValue = 0;
+        float inverseDistance = 0;
+
+        for (int p = 0; p < pattern.Length; p++)
+        {
+            Vector3 curentPos = position + pattern[p];
+            float distance = Vector3.Distance(curentPos, position);
+
+            //check map bounds
+            if (curentPos.x < 0.0f || curentPos.x > mapSize.x || curentPos.y < 0.0f || curentPos.y > mapSize.y) continue;
+
+            distance = distance / distance;
+            heightValue += GetBiomeHeight(curentPos) / distance;
+            inverseDistance += 1.0f / distance;
+        }
+
+        return heightValue / inverseDistance;
+    }
 
     //--------------------
 

@@ -256,7 +256,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.5, y: -0.5, z: 0.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 386857490}
@@ -274,7 +274,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   suspensionDampening: 0.9999
-  suspensionSpringStrength: 75
+  suspensionSpringStrength: 100
   suspensionRestDist: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
@@ -285,26 +285,35 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0.34434128
+      inSlope: 2.1139846
+      outSlope: 2.1139846
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.2430468
+      value: 0.8581385
+      inSlope: 1.0696872
+      outSlope: 1.0696872
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0.8773575
+      inSlope: 0.02538992
+      outSlope: 0.02538992
       tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  topSpeed: 10
+  topSpeed: 5
   motorTorque: 50
   isMotor: 0
   isSteering: 1
@@ -661,8 +670,8 @@ Transform:
   m_GameObject: {fileID: 386857486}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 4.88, z: 0}
+  m_LocalScale: {x: 2, y: 1, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 803914667}
@@ -1147,7 +1156,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.5, y: -0.5, z: -0.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 386857490}
@@ -1165,7 +1174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   suspensionDampening: 0.9999
-  suspensionSpringStrength: 75
+  suspensionSpringStrength: 100
   suspensionRestDist: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
@@ -1176,26 +1185,35 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0.34434128
+      inSlope: 2.1139846
+      outSlope: 2.1139846
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.2430468
+      value: 0.8581385
+      inSlope: 1.0696872
+      outSlope: 1.0696872
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0.8773575
+      inSlope: 0.02538992
+      outSlope: 0.02538992
       tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  topSpeed: 10
+  topSpeed: 5
   motorTorque: 50
   isMotor: 1
   isSteering: 0
@@ -1501,7 +1519,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.5, y: -0.5, z: -0.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 386857490}
@@ -1519,7 +1537,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   suspensionDampening: 0.9999
-  suspensionSpringStrength: 75
+  suspensionSpringStrength: 100
   suspensionRestDist: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
@@ -1530,26 +1548,35 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0.34434128
+      inSlope: 2.1139846
+      outSlope: 2.1139846
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.2430468
+      value: 0.8581385
+      inSlope: 1.0696872
+      outSlope: 1.0696872
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0.8773575
+      inSlope: 0.02538992
+      outSlope: 0.02538992
       tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  topSpeed: 10
+  topSpeed: 5
   motorTorque: 50
   isMotor: 1
   isSteering: 0
@@ -1953,7 +1980,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.5, y: -0.5, z: 0.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 386857490}
@@ -1971,7 +1998,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   suspensionDampening: 0.9999
-  suspensionSpringStrength: 75
+  suspensionSpringStrength: 100
   suspensionRestDist: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
@@ -1982,26 +2009,35 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0.34434128
+      inSlope: 2.1139846
+      outSlope: 2.1139846
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.2430468
+      value: 0.8581385
+      inSlope: 1.0696872
+      outSlope: 1.0696872
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      value: 0.8773575
+      inSlope: 0.02538992
+      outSlope: 0.02538992
       tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  topSpeed: 10
+  topSpeed: 5
   motorTorque: 50
   isMotor: 0
   isSteering: 1

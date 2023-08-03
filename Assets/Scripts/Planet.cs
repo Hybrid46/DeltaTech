@@ -4,11 +4,15 @@ using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using static StaticUtils;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Burst;
 
 public class Planet : Singleton<Planet>
 {
     [Serializable]
-    public struct BiomeSettings
+    public struct BiomeSettings //TODO class?
     {
         public NoiseSettings noiseSettings;
         public List<PrefabBiomeSettings> prefabBiomeSettings;
@@ -42,7 +46,7 @@ public class Planet : Singleton<Planet>
 
         public NoiseSettings(Vector2 offset, float scale, float amplitude, float minHeight, float maxHeight)
         {
-            this.offset = offset == Vector2.zero ? new Vector2(Random.Range(0, 999999), Random.Range(0, 999999)) : offset;
+            this.offset = offset;
             this.scale = scale;
             this.amplitude = amplitude;
             this.minHeight = minHeight;
@@ -69,8 +73,8 @@ public class Planet : Singleton<Planet>
 
     public UnityAction OnChunksGenerated;
 
-    public static Vector2Int mapSize = new Vector2Int(256 + 1, 256 + 1);
-    public static Vector2Int chunkSize = new Vector2Int(64, 64);
+    public static int mapSize = 256 + 1;
+    public static int chunkSize = 32;
 
     public GameObject terrainChunk;
 
@@ -99,6 +103,13 @@ public class Planet : Singleton<Planet>
     private const float idwRange = 4.0f;
     private Vector3[] idwPattern;
 
+    private Mesh baseMesh;
+
+    NativeArray<Vector3> verticesNative;
+    NativeArray<Vector3> verticesHeightNative;
+    NativeArray<NoiseSettings> biomeNoiseSettingsNative;
+    NativeArray<Vector3> idwPatternNative;
+
     //debug
     //private List<Bounds> placedPrefabBoundsDebug = new List<Bounds>();
     //private List<Bounds> overlappedPrefabBoundsDebug = new List<Bounds>();
@@ -112,20 +123,47 @@ public class Planet : Singleton<Planet>
     {
         DateTime exectime = DateTime.Now;
 
-        baseSettings.noiseSettings = new NoiseSettings(Vector2.zero, baseSettings.noiseSettings.scale, baseSettings.noiseSettings.amplitude, 0, biomeSettings.Count);
+        baseSettings.noiseSettings = new NoiseSettings(baseSettings.noiseSettings.offset == Vector2.zero ? new Vector2(Random.Range(0, 999999), Random.Range(0, 999999)) : baseSettings.noiseSettings.offset,
+                                                       baseSettings.noiseSettings.scale,
+                                                       baseSettings.noiseSettings.amplitude,
+                                                       0,
+                                                       biomeSettings.Count);
 
-        biomeSettings.ForEach(setting => { setting.noiseSettings.offset = new Vector2(Random.Range(0, 999999), Random.Range(0, 999999)); });
+        biomeSettings.ForEach(setting =>
+        {
+            setting.noiseSettings = new NoiseSettings(setting.noiseSettings.offset == Vector2.zero ? new Vector2(Random.Range(0, 999999), Random.Range(0, 999999)) : setting.noiseSettings.offset,
+                                                      setting.noiseSettings.scale,
+                                                      setting.noiseSettings.amplitude,
+                                                      setting.noiseSettings.minHeight,
+                                                      setting.noiseSettings.maxHeight);
+
+            //setting.noiseSettings.offset = setting.noiseSettings.offset == Vector2.zero ? new Vector2(Random.Range(0, 999999), Random.Range(0, 999999)) : setting.noiseSettings.offset;
+        });
+
+        biomeNoiseSettingsNative = new NativeArray<NoiseSettings>(biomeSettings.Count, Allocator.Persistent);
+
+        for (int b = 0; b < biomeSettings.Count; b++)
+        {
+            biomeNoiseSettingsNative[b] = biomeSettings[b].noiseSettings;
+        }
 
         idwPattern = GetPattern(idwStepSize, idwRange);
+        idwPatternNative = new NativeArray<Vector3>(idwPattern.Length, Allocator.Persistent);
+        idwPattern.CopyTo(idwPatternNative);
 
         Debug.Log("Biomes Initialized in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
         //Chunk Generation
         exectime = DateTime.Now;
 
-        for (int z = 0; z < mapSize.y - 1; z += chunkSize.y)
+        baseMesh = GenerateMesh(Vector3.zero);
+        verticesNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
+        verticesHeightNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
+        baseMesh.vertices.CopyTo(verticesNative);
+
+        for (int z = 0; z < mapSize - 1; z += chunkSize)
         {
-            for (int x = 0; x < mapSize.x - 1; x += chunkSize.x)
+            for (int x = 0; x < mapSize - 1; x += chunkSize)
             {
                 Vector3 worldPosition = new Vector3(x, 0, z);
 
@@ -170,13 +208,6 @@ public class Planet : Singleton<Planet>
 
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
-        //Release memory for meshes
-        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
-        {
-            chunk.Value.SimpleMesh.UploadMeshData(true);
-            //chunk.Value.DetailMesh.UploadMeshData(true);
-        }
-
         OnChunksGenerated += ChunksGenerated;
         OnChunksGenerated.Invoke();
 
@@ -206,57 +237,59 @@ public class Planet : Singleton<Planet>
     //TODO Detail and LOD meshes
     private void GenerateChunkMeshes(Vector3 worldPosition, Chunk currentChunk)
     {
-        currentChunk.SimpleMesh = GenerateMesh(worldPosition);
+        currentChunk.SimpleMesh = Instantiate(baseMesh);
+        GenerateHeightMesh(worldPosition, currentChunk.SimpleMesh);
         currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, true);
+        currentChunk.SimpleMesh.UploadMeshData(true);
     }
 
     private Mesh GenerateMesh(Vector3 worldPosition)
     {
         Mesh mesh = new Mesh();
-        Vector3[] vertices = new Vector3[(chunkSize.x + 1) * (chunkSize.y + 1)];
+        Vector3[] vertices = new Vector3[(chunkSize + 1) * (chunkSize + 1)];
 
         //vertices
         int i = 0;
-        for (int d = 0; d <= chunkSize.y; d++)
+        for (int d = 0; d <= chunkSize; d++)
         {
-            for (int w = 0; w <= chunkSize.x; w++)
+            for (int w = 0; w <= chunkSize; w++)
             {
                 Vector3 wPosition = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
-                float height = GetHeight(wPosition);
-
-                vertices[i] = new Vector3(worldPosition.x + w, height, worldPosition.z + d);
+                //float height = GetHeight(wPosition);
+                //vertices[i] = new Vector3(worldPosition.x + w, height, worldPosition.z + d);
+                vertices[i] = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
                 i++;
             }
         }
 
         //triangles
-        int[] triangles = new int[chunkSize.x * chunkSize.y * 6];
+        int[] triangles = new int[chunkSize * chunkSize * 6];
 
-        for (int d = 0; d < chunkSize.y; d++)
+        for (int d = 0; d < chunkSize; d++)
         {
-            for (int w = 0; w < chunkSize.x; w++)
+            for (int w = 0; w < chunkSize; w++)
             {
-                int ti = (d * (chunkSize.x) + w) * 6;
+                int ti = (d * (chunkSize) + w) * 6;
 
-                triangles[ti] = (d * (chunkSize.x + 1)) + w;
-                triangles[ti + 1] = ((d + 1) * (chunkSize.x + 1)) + w;
-                triangles[ti + 2] = ((d + 1) * (chunkSize.x + 1)) + w + 1;
+                triangles[ti] = (d * (chunkSize + 1)) + w;
+                triangles[ti + 1] = ((d + 1) * (chunkSize + 1)) + w;
+                triangles[ti + 2] = ((d + 1) * (chunkSize + 1)) + w + 1;
 
-                triangles[ti + 3] = (d * (chunkSize.x + 1)) + w;
-                triangles[ti + 4] = ((d + 1) * (chunkSize.x + 1)) + w + 1;
-                triangles[ti + 5] = (d * (chunkSize.x + 1)) + w + 1;
+                triangles[ti + 3] = (d * (chunkSize + 1)) + w;
+                triangles[ti + 4] = ((d + 1) * (chunkSize + 1)) + w + 1;
+                triangles[ti + 5] = (d * (chunkSize + 1)) + w + 1;
             }
         }
 
         //UV
-        Vector2[] uv = new Vector2[(chunkSize.x + 1) * (chunkSize.y + 1)];
+        Vector2[] uv = new Vector2[(chunkSize + 1) * (chunkSize + 1)];
 
         i = 0;
-        for (int d = 0; d <= chunkSize.y; d++)
+        for (int d = 0; d <= chunkSize; d++)
         {
-            for (int w = 0; w <= chunkSize.x; w++)
+            for (int w = 0; w <= chunkSize; w++)
             {
-                uv[i] = new Vector2(w / (float)chunkSize.x, d / (float)chunkSize.y);
+                uv[i] = new Vector2(w / (float)chunkSize, d / (float)chunkSize);
                 i++;
             }
         }
@@ -273,6 +306,92 @@ public class Planet : Singleton<Planet>
         return mesh;
     }
 
+    [BurstCompile]
+    struct HeightJob : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<Vector3> vertices;
+        [ReadOnly] public NativeArray<NoiseSettings> biomeNoiseSettings;
+        [ReadOnly] public NativeArray<Vector3> idwPattern;
+        [ReadOnly] public int chunkSize;
+        [ReadOnly] public int mapSize;
+        [ReadOnly] public Vector3 worldPosition;
+        [ReadOnly] public NoiseSettings baseNoiseSettings;
+        [WriteOnly] public NativeArray<Vector3> verticesHeight;
+
+        public void Execute(int i)
+        {
+            Vector3 currentWorldPosition = worldPosition + vertices[i];
+
+            verticesHeight[i] = new Vector3(currentWorldPosition.x, GetHeight(currentWorldPosition), currentWorldPosition.z);
+        }
+
+        private float GetBaseHeight(Vector3 position) => Mathf.Clamp01(GetNoiseHeight(position, baseNoiseSettings));
+
+        private float GetBiomeHeight(Vector3 position) => GetNoiseHeight(position, biomeNoiseSettings[GetBiomeIndex(position)]);
+
+        private int GetBiomeIndex(Vector3 position) => (biomeNoiseSettings.Length - 1) * (int)GetBaseHeight(position);
+
+        private float GetNoiseHeight(Vector3 position, NoiseSettings noiseSettings)
+        {
+            float xCoord = position.x / mapSize * noiseSettings.scale + noiseSettings.offset.x;
+            float zCoord = position.z / mapSize * noiseSettings.scale + noiseSettings.offset.y;
+
+            //return Mathf.PerlinNoise(xCoord, zCoord) * noiseSettings.maxHeight + noiseSettings.minHeight;
+            return noise.cnoise(new float2(xCoord, zCoord)) * noiseSettings.maxHeight + noiseSettings.minHeight;
+        }
+
+        private float GetHeight(Vector3 position) => GetHeightMapIDW(position, idwPattern);
+
+        private float GetHeightMapIDW(Vector3 position, NativeArray<Vector3> pattern)
+        {
+            //Inverse distance weighted interpolation
+            //https://gisgeography.com/inverse-distance-weighting-idw-interpolation/
+
+            float heightValue = 0;
+            float inverseDistance = 0;
+
+            for (int p = 0; p < pattern.Length; p++)
+            {
+                Vector3 curentPos = position + pattern[p];
+                float distance = Vector3.Distance(curentPos, position);
+
+                //check map bounds
+                if (curentPos.x < 0.0f || curentPos.x > mapSize || curentPos.y < 0.0f || curentPos.y > mapSize) continue;
+
+                distance = distance / distance;
+                heightValue += GetBiomeHeight(curentPos) / distance;
+                inverseDistance += 1.0f / distance;
+            }
+
+            return heightValue / inverseDistance;
+        }
+    }
+
+    private void GenerateHeightMesh(Vector3 worldPosition, Mesh mesh)
+    {
+        HeightJob heightJob = new HeightJob()
+        {
+            vertices = verticesNative,
+            verticesHeight = verticesHeightNative,
+            worldPosition = worldPosition,
+            baseNoiseSettings = baseSettings.noiseSettings,
+            biomeNoiseSettings = biomeNoiseSettingsNative,
+            idwPattern = idwPatternNative,
+            chunkSize = chunkSize,
+            mapSize = mapSize,
+        };
+
+        JobHandle heightJobHandle = heightJob.Schedule(mesh.vertices.Length, 32);
+
+        heightJobHandle.Complete();
+
+        mesh.vertices = verticesHeightNative.ToArray();
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+        mesh.Optimize();
+    }
+
     private void SpawnPrefabs(Chunk chunk, Dictionary<Chunk, List<Bounds>> placedBounds, int spawnLayer)
     {
         //get poisson disc sampling points then spawn prefabs by chances
@@ -284,7 +403,7 @@ public class Planet : Singleton<Planet>
         for (int p = 0; p < poissonSamples.Count; p++)
         {
             poissonSamples[p] += chunk.myRenderer.bounds.min;
-            poissonSamples[p] = new Vector3(poissonSamples[p].x, GetHeight(poissonSamples[p]), poissonSamples[p].z);
+            poissonSamples[p] = new Vector3(poissonSamples[p].x, 0.0f, poissonSamples[p].z);
         }
 
         foreach (Vector3 point in poissonSamples)
@@ -371,7 +490,7 @@ public class Planet : Singleton<Planet>
                 }
             }
         }
-        //Debug.Log($"Chunk -> {chunk.Value.chunkWorldPos} Placed {debug.placed} overlapping {debug.overlapping} ray miss {debug.rayMiss}.");
+        //Debug.Log($"Chunk -> {chunk.chunkWorldPos} Placed {debug.placed} overlapping {debug.overlapping} ray miss {debug.rayMiss}.");
     }
 
     public void ChunksGenerated()
@@ -392,7 +511,7 @@ public class Planet : Singleton<Planet>
             {
                 //if (x == 0 && y == 0) continue; // Skip the current chunk position
 
-                neighbours[index] = new Vector3(chunkPos.x + x * chunkSize.x, 0.0f, chunkPos.z + y * chunkSize.y);
+                neighbours[index] = new Vector3(chunkPos.x + x * chunkSize, 0.0f, chunkPos.z + y * chunkSize);
                 index++;
             }
         }
@@ -402,7 +521,7 @@ public class Planet : Singleton<Planet>
 
     public Chunk GetChunkByWorldPosition(Vector3 worldPos) => ChunkCells[worldPos - GetChunkLocalCoord(worldPos)];
 
-    public Vector3 GetChunkLocalCoord(Vector3 worldPos) => new Vector3(worldPos.x % chunkSize.x, 0.0f, worldPos.z % chunkSize.y);
+    public Vector3 GetChunkLocalCoord(Vector3 worldPos) => new Vector3(worldPos.x % chunkSize, 0.0f, worldPos.z % chunkSize);
 
     //--------------------
 
@@ -415,8 +534,8 @@ public class Planet : Singleton<Planet>
 
     private float GetNoiseHeight(Vector3 position, NoiseSettings noiseSettings)
     {
-        float xCoord = position.x / mapSize.x * noiseSettings.scale + noiseSettings.offset.x;
-        float zCoord = position.z / mapSize.y * noiseSettings.scale + noiseSettings.offset.y;
+        float xCoord = position.x / mapSize * noiseSettings.scale + noiseSettings.offset.x;
+        float zCoord = position.z / mapSize * noiseSettings.scale + noiseSettings.offset.y;
 
         return Mathf.PerlinNoise(xCoord, zCoord) * noiseSettings.maxHeight + noiseSettings.minHeight;
     }
@@ -437,7 +556,7 @@ public class Planet : Singleton<Planet>
             float distance = Vector3.Distance(curentPos, position);
 
             //check map bounds
-            if (curentPos.x < 0.0f || curentPos.x > mapSize.x || curentPos.y < 0.0f || curentPos.y > mapSize.y) continue;
+            if (curentPos.x < 0.0f || curentPos.x > mapSize || curentPos.y < 0.0f || curentPos.y > mapSize) continue;
 
             distance = distance / distance;
             heightValue += GetBiomeHeight(curentPos) / distance;
@@ -581,5 +700,23 @@ public class Planet : Singleton<Planet>
             }
         }
         */
+    }
+
+    private void OnDestroy()
+    {
+        DisposeNatives();
+    }
+
+    private void OnDisable()
+    {
+        DisposeNatives();
+    }
+
+    private void DisposeNatives()
+    {
+        if (verticesNative.IsCreated) verticesNative.Dispose();
+        if (verticesHeightNative.IsCreated) verticesHeightNative.Dispose();
+        if (biomeNoiseSettingsNative.IsCreated) biomeNoiseSettingsNative.Dispose();
+        if (idwPatternNative.IsCreated) idwPatternNative.Dispose();
     }
 }

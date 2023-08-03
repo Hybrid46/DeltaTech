@@ -314,7 +314,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   topSpeed: 5
-  motorTorque: 50
+  motorTorque: 100
   isMotor: 0
   isSteering: 1
 --- !u!23 &104489308
@@ -670,7 +670,7 @@ Transform:
   m_GameObject: {fileID: 386857486}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 50, y: 40, z: 50}
+  m_LocalPosition: {x: 59.09, y: 40, z: 50}
   m_LocalScale: {x: 2, y: 1, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1214,7 +1214,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   topSpeed: 5
-  motorTorque: 50
+  motorTorque: 100
   isMotor: 1
   isSteering: 0
 --- !u!23 &614315880
@@ -1577,7 +1577,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   topSpeed: 5
-  motorTorque: 50
+  motorTorque: 100
   isMotor: 1
   isSteering: 0
 --- !u!23 &803914670
@@ -2038,7 +2038,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   topSpeed: 5
-  motorTorque: 50
+  motorTorque: 100
   isMotor: 0
   isSteering: 1
 --- !u!23 &1540011268
@@ -2476,7 +2476,7 @@ MonoBehaviour:
       scale: 16
       amplitude: 0.1
       minHeight: 0
-      maxHeight: 20
+      maxHeight: 10
     prefabBiomeSettings:
     - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
         type: 3}
@@ -2501,7 +2501,7 @@ MonoBehaviour:
       scale: 10
       amplitude: 0.05
       minHeight: 0
-      maxHeight: 40
+      maxHeight: 30
     prefabBiomeSettings:
     - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
         type: 3}
@@ -2550,12 +2550,12 @@ MonoBehaviour:
       Max: {x: 1.5, y: 1.5, z: 1.5}
     alignToNormal: 0
   poissonSampleMinDistance: 5
-  generateNavmeshes: 1
+  generateNavmeshes: 0
   debugWorldBounds: 0
   debugChunkBounds: 0
-  debugHeightMap: 0
+  debugHeightMap: 1
   debugIDWPattern: 0
-  debugPoisson: 1
+  debugPoisson: 0
   debugGradient:
     serializedVersion: 2
     key0: {r: 1, g: 0, b: 0, a: 1}

@@ -39,7 +39,7 @@ public static class StaticUtils
 
     public static float Rounder(float x, float g = 16) => Mathf.Floor((x + g / 2) / g) * g;
 
-    public static int RounderInt(float x, float g = 16) => (int)((Mathf.Floor((x + g / 2) / g) * g));
+    public static int RounderInt(float x, float g = 16) => (int)(Mathf.Floor((x + g / 2) / g) * g);
 
     public static int RounderInt(int x, int g = 16) => (int)Mathf.Floor((x + g / 2) / g) * g;
 

@@ -11,8 +11,12 @@ using Unity.Burst;
 
 public class Planet : Singleton<Planet>
 {
+    [Range(100.0f,1000.0f)]public float renderDistance = 100.0f;
+    public List<Transform> cameras;
+    private HashSet<Vector3> activeChunks;
+
     [Serializable]
-    public struct BiomeSettings //TODO class?
+    public struct BiomeSettings
     {
         public NoiseSettings noiseSettings;
         public List<PrefabBiomeSettings> prefabBiomeSettings;
@@ -73,8 +77,8 @@ public class Planet : Singleton<Planet>
 
     public UnityAction OnChunksGenerated;
 
-    public static int mapSize = 256 + 1;
-    public static int chunkSize = 32;
+    public static int mapSize = 1024 + 1;
+    public static int chunkSize = 64;
 
     public GameObject terrainChunk;
 
@@ -85,7 +89,7 @@ public class Planet : Singleton<Planet>
     public List<PrefabSettings> prefabSettings;
     private Dictionary<GameObject, PrefabSettings> prefabSettingsLUT;
 
-    public float poissonSampleMinDistance = 5.0f;
+    public float poissonSampleMinDistance = 10.0f;
 
     public bool generateNavmeshes = false;
 
@@ -117,6 +121,49 @@ public class Planet : Singleton<Planet>
     private void Start()
     {
         InitializePlanet();
+    }
+
+    private void Update()
+    {
+        ActivateChunks();
+    }
+
+    private void ActivateChunks()
+    {
+        float chunkRenderDistance = Mathf.CeilToInt(renderDistance / chunkSize + 1) * chunkSize; //+1 to be sure they are out of rendering range and will turn off
+        Vector3 currentChunkPosition;
+        Vector3 currentWorldPosition;
+
+        for (int c = 0; c < cameras.Count; c++) //TODO -> later when a player disconnects i should deactivate all chunks in visibile range
+        {
+            //currentChunkPosition = GetChunkByWorldPosition(cameras[c].position).chunkWorldPos;
+            currentChunkPosition = GetChunkPosition(cameras[c].position);
+
+            for (float z = currentChunkPosition.z - chunkRenderDistance; z <= currentChunkPosition.z + chunkRenderDistance; z += chunkSize)
+            {
+                for (float x = currentChunkPosition.x - chunkRenderDistance; x <= currentChunkPosition.x + chunkRenderDistance; x += chunkSize)
+                {
+                    currentWorldPosition = new Vector3(x, 0.0f, z);
+
+                    if (ChunkCells.ContainsKey(currentWorldPosition))
+                    {
+                        //if they out of render distance deactivate them, else make them active. TODO -> respawn objects on deactivating and don't forget to check overlapping units!
+                        bool inRenderingDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, cameras[c].transform.position) < renderDistance;
+
+                        ChunkCells[currentWorldPosition].gameObject.SetActive(inRenderingDistance);
+
+                        if (inRenderingDistance)
+                        {
+                            activeChunks.Add(currentWorldPosition);
+                        }
+                        else
+                        {
+                            if (activeChunks.Contains(currentWorldPosition)) activeChunks.Remove(currentWorldPosition);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void InitializePlanet()
@@ -175,6 +222,8 @@ public class Planet : Singleton<Planet>
         }
 
         ChunkCells.TrimExcess();
+        activeChunks = new HashSet<Vector3>(ChunkCells.Count);
+        DisposeNatives();
 
         Debug.Log("Chunks generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
@@ -204,6 +253,8 @@ public class Planet : Singleton<Planet>
         foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
         {
             SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
+            //StaticBatchingUtility.Combine(chunk.Value.gameObject);
+            chunk.Value.gameObject.SetActive(false);
         }
 
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
@@ -522,6 +573,16 @@ public class Planet : Singleton<Planet>
     public Chunk GetChunkByWorldPosition(Vector3 worldPos) => ChunkCells[worldPos - GetChunkLocalCoord(worldPos)];
 
     public Vector3 GetChunkLocalCoord(Vector3 worldPos) => new Vector3(worldPos.x % chunkSize, 0.0f, worldPos.z % chunkSize);
+
+    public Vector3 GetChunkPosition(Vector3 worldPos)
+    {
+        int chunkX = Mathf.FloorToInt(worldPos.x / chunkSize);
+        int chunkZ = Mathf.FloorToInt(worldPos.z / chunkSize);
+
+        Vector3 chunkPosition = new Vector3(chunkX * chunkSize, 0.0f, chunkZ * chunkSize);
+
+        return chunkPosition;
+    }
 
     //--------------------
 

@@ -1333,8 +1333,8 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
-  m_Antialiasing: 0
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 1
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -2460,6 +2460,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32db453c34995344da3cf23cc3473920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  renderDistance: 100
+  cameras:
+  - {fileID: 630818608}
   terrainChunk: {fileID: 3589620711608005247, guid: df79f65c463e29548a5c9aef57e58476,
     type: 3}
   baseSettings:
@@ -2484,13 +2487,13 @@ MonoBehaviour:
       height:
         Min: 0
         Max: 1000
-    - prefab: {fileID: 919132149155446097, guid: 343d3ee231e865747b8e046271dbf835,
+    - prefab: {fileID: 1969351348244492967, guid: 586091444457ddf4aac4ebc7d2ae3f82,
         type: 3}
       chance: 0.6
       height:
         Min: 20
         Max: 1000
-    - prefab: {fileID: 919132149155446097, guid: 44446a21b754bb2458f197a16fddcdf4,
+    - prefab: {fileID: 4873172386714208740, guid: cfbc14e0f417346429e0846d42dd32a2,
         type: 3}
       chance: 0.15
       height:
@@ -2509,7 +2512,7 @@ MonoBehaviour:
       height:
         Min: 0
         Max: 1000
-    - prefab: {fileID: 919132149155446097, guid: 59db3dba497048b4ba342eaeb2ae83ed,
+    - prefab: {fileID: 9010586405513134128, guid: 7bad0f3d63efa0e4b9c7061958cc5cbb,
         type: 3}
       chance: 0.5
       height:
@@ -2522,10 +2525,11 @@ MonoBehaviour:
       Min: {x: 0, y: 0, z: 0}
       Max: {x: 0, y: 360, z: 0}
     scale:
-      Min: {x: 0.5, y: 0.5, z: 0.5}
-      Max: {x: 1.5, y: 1.5, z: 1.5}
+      Min: {x: 1, y: 1, z: 1}
+      Max: {x: 1, y: 1, z: 1}
     alignToNormal: 0
-  - prefab: {fileID: 919132149155446097, guid: 343d3ee231e865747b8e046271dbf835, type: 3}
+  - prefab: {fileID: 1969351348244492967, guid: 586091444457ddf4aac4ebc7d2ae3f82,
+      type: 3}
     rotation:
       Min: {x: 0, y: 0, z: 0}
       Max: {x: 360, y: 360, z: 360}
@@ -2533,7 +2537,8 @@ MonoBehaviour:
       Min: {x: 0.5, y: 0.5, z: 0.5}
       Max: {x: 1.5, y: 1.5, z: 1.5}
     alignToNormal: 0
-  - prefab: {fileID: 919132149155446097, guid: 44446a21b754bb2458f197a16fddcdf4, type: 3}
+  - prefab: {fileID: 4873172386714208740, guid: cfbc14e0f417346429e0846d42dd32a2,
+      type: 3}
     rotation:
       Min: {x: 0, y: 0, z: 0}
       Max: {x: 360, y: 360, z: 360}
@@ -2541,7 +2546,8 @@ MonoBehaviour:
       Min: {x: 0.5, y: 0.5, z: 0.5}
       Max: {x: 1.5, y: 1.5, z: 1.5}
     alignToNormal: 0
-  - prefab: {fileID: 919132149155446097, guid: 59db3dba497048b4ba342eaeb2ae83ed, type: 3}
+  - prefab: {fileID: 9010586405513134128, guid: 7bad0f3d63efa0e4b9c7061958cc5cbb,
+      type: 3}
     rotation:
       Min: {x: 0, y: 0, z: 0}
       Max: {x: 360, y: 360, z: 360}
@@ -2549,11 +2555,11 @@ MonoBehaviour:
       Min: {x: 0.5, y: 0.5, z: 0.5}
       Max: {x: 1.5, y: 1.5, z: 1.5}
     alignToNormal: 0
-  poissonSampleMinDistance: 5
+  poissonSampleMinDistance: 10
   generateNavmeshes: 0
   debugWorldBounds: 0
   debugChunkBounds: 0
-  debugHeightMap: 1
+  debugHeightMap: 0
   debugIDWPattern: 0
   debugPoisson: 0
   debugGradient:

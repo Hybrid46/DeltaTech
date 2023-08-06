@@ -11,8 +11,8 @@ using Unity.Burst;
 
 public class Planet : Singleton<Planet>
 {
-    [Range(100.0f,1000.0f)]public float renderDistance = 100.0f;
-    public List<Transform> cameras;
+    [Range(100.0f, 1000.0f)] public float renderDistance = 100.0f;
+    public List<Camera> cameras;
     private HashSet<Vector3> activeChunks;
 
     [Serializable]
@@ -103,8 +103,8 @@ public class Planet : Singleton<Planet>
 
     private Bounds worldBounds = new Bounds();
 
-    private const float idwStepSize = 0.5f;
-    private const float idwRange = 4.0f;
+    private const float idwStepSize = 1.0f;
+    private const float idwRange = 5.0f;
     private Vector3[] idwPattern;
 
     private Mesh baseMesh;
@@ -137,7 +137,7 @@ public class Planet : Singleton<Planet>
         for (int c = 0; c < cameras.Count; c++) //TODO -> later when a player disconnects i should deactivate all chunks in visibile range
         {
             //currentChunkPosition = GetChunkByWorldPosition(cameras[c].position).chunkWorldPos;
-            currentChunkPosition = GetChunkPosition(cameras[c].position);
+            currentChunkPosition = GetChunkPosition(cameras[c].transform.position);
 
             for (float z = currentChunkPosition.z - chunkRenderDistance; z <= currentChunkPosition.z + chunkRenderDistance; z += chunkSize)
             {
@@ -160,6 +160,16 @@ public class Planet : Singleton<Planet>
                         {
                             if (activeChunks.Contains(currentWorldPosition)) activeChunks.Remove(currentWorldPosition);
                         }
+
+                        /*
+                        //TODO chunk frustrum culling?
+                        bool isVisible = GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(cameras[c]), ChunkCells[currentWorldPosition].myRenderer.bounds);
+
+                        if (isVisible)
+                        {
+                            ChunkCells[currentWorldPosition].myRenderer.enabled = isVisible;
+                        }
+                        */
                     }
                 }
             }
@@ -258,6 +268,17 @@ public class Planet : Singleton<Planet>
         }
 
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
+
+        //Mesh combining
+        exectime = DateTime.Now;
+
+        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+        {
+            chunk.Value.GetChildrenMeshFilters();
+            chunk.Value.CombineMeshes();
+        }
+
+        Debug.Log("Meshes combined in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
         OnChunksGenerated += ChunksGenerated;
         OnChunksGenerated.Invoke();

@@ -2460,9 +2460,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32db453c34995344da3cf23cc3473920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 100
+  renderDistance: 200
   cameras:
-  - {fileID: 630818608}
+  - {fileID: 630818607}
   terrainChunk: {fileID: 3589620711608005247, guid: df79f65c463e29548a5c9aef57e58476,
     type: 3}
   baseSettings:

@@ -11,6 +11,8 @@ using Unity.Burst;
 
 public class Planet : Singleton<Planet>
 {
+    TerrainSimplification terrainSimplification = new TerrainSimplification();
+
     [Range(100.0f, 1000.0f)] public float renderDistance = 100.0f;
     public List<Camera> cameras;
     private HashSet<Vector3> activeChunks;
@@ -77,7 +79,7 @@ public class Planet : Singleton<Planet>
 
     public UnityAction OnChunksGenerated;
 
-    public static int mapSize = 1024 + 1;
+    public static int mapSize = 256 + 1;
     public static int chunkSize = 64;
 
     public GameObject terrainChunk;
@@ -218,6 +220,10 @@ public class Planet : Singleton<Planet>
         verticesHeightNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         baseMesh.vertices.CopyTo(verticesNative);
 
+        //terrainSimplification.FindEdgeTriangles(baseMesh);
+        //terrainSimplification.ColorEdgeTriangles(baseMesh);
+        //terrainSimplification.RemoveEdgeTriangles(baseMesh);
+
         for (int z = 0; z < mapSize - 1; z += chunkSize)
         {
             for (int x = 0; x < mapSize - 1; x += chunkSize)
@@ -309,10 +315,13 @@ public class Planet : Singleton<Planet>
     //TODO Detail and LOD meshes
     private void GenerateChunkMeshes(Vector3 worldPosition, Chunk currentChunk)
     {
-        currentChunk.SimpleMesh = Instantiate(baseMesh);
-        GenerateHeightMesh(worldPosition, currentChunk.SimpleMesh);
-        currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, true);
-        currentChunk.SimpleMesh.UploadMeshData(true);
+        currentChunk.DetailMesh = Instantiate(baseMesh);
+        //terrainSimplification.SimplifyTerrain(currentChunk.DetailMesh);
+        GenerateHeightMesh(worldPosition, currentChunk.DetailMesh);
+        //currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, true);
+        currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed, true);
+        //currentChunk.SimpleMesh.UploadMeshData(true);
+        currentChunk.DetailMesh.UploadMeshData(true);
     }
 
     private Mesh GenerateMesh(Vector3 worldPosition)

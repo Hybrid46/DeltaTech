@@ -151,12 +151,21 @@ public class Planet : Singleton<Planet>
                     {
                         //if they out of render distance deactivate them, else make them active. TODO -> respawn objects on deactivating and don't forget to check overlapping units!
                         bool inRenderingDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, cameras[c].transform.position) < renderDistance;
+                        bool inDetailDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, cameras[c].transform.position) < renderDistance * 0.5f;
 
                         ChunkCells[currentWorldPosition].gameObject.SetActive(inRenderingDistance);
 
                         if (inRenderingDistance)
                         {
                             activeChunks.Add(currentWorldPosition);
+                            if (inDetailDistance)
+                            {
+                                ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Detailed, true);
+                            }
+                            else
+                            {
+                                ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Simple, false);
+                            }
                         }
                         else
                         {
@@ -220,7 +229,7 @@ public class Planet : Singleton<Planet>
         verticesHeightNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         baseMesh.vertices.CopyTo(verticesNative);
 
-        //terrainSimplification.FindEdgeTriangles(baseMesh);
+        terrainSimplification.FindEdgeTriangles(baseMesh);
         //terrainSimplification.ColorEdgeTriangles(baseMesh);
         //terrainSimplification.RemoveEdgeTriangles(baseMesh);
 
@@ -316,11 +325,13 @@ public class Planet : Singleton<Planet>
     private void GenerateChunkMeshes(Vector3 worldPosition, Chunk currentChunk)
     {
         currentChunk.DetailMesh = Instantiate(baseMesh);
-        //terrainSimplification.SimplifyTerrain(currentChunk.DetailMesh);
         GenerateHeightMesh(worldPosition, currentChunk.DetailMesh);
-        //currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, true);
-        currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed, true);
-        //currentChunk.SimpleMesh.UploadMeshData(true);
+        currentChunk.SimpleMesh = Instantiate(currentChunk.DetailMesh);
+        terrainSimplification.RemoveEdgeTriangles(currentChunk.SimpleMesh);
+        //terrainSimplification.SimplifyTerrain(currentChunk.SimpleMesh);
+        currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, false);
+        //currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed, true);
+        currentChunk.SimpleMesh.UploadMeshData(true);
         currentChunk.DetailMesh.UploadMeshData(true);
     }
 

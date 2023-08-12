@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using static StaticUtils;
+using static MeshUtilities;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -326,8 +327,12 @@ public class Planet : Singleton<Planet>
     {
         currentChunk.DetailMesh = Instantiate(baseMesh);
         GenerateHeightMesh(worldPosition, currentChunk.DetailMesh);
-        currentChunk.SimpleMesh = Instantiate(currentChunk.DetailMesh);
-        terrainSimplification.RemoveEdgeTriangles(currentChunk.SimpleMesh);
+
+        //RemoveTriangleAndVertices(currentChunk.DetailMesh, 0);
+        currentChunk.SimpleMesh = currentChunk.DetailMesh;
+        //ConvertTrianglesToQuads(currentChunk.SimpleMesh);
+
+        //terrainSimplification.RemoveEdgeTriangles(currentChunk.SimpleMesh);
         //terrainSimplification.SimplifyTerrain(currentChunk.SimpleMesh);
         currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, false);
         //currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed, true);
@@ -397,6 +402,67 @@ public class Planet : Singleton<Planet>
         mesh.Optimize();
         return mesh;
     }
+
+    private Mesh GenerateSimplifiedMesh(Vector3 worldPosition, int targetResolution)
+    {
+        Mesh mesh = new Mesh();
+        int chunkSize = targetResolution - 1;
+
+        Vector3[] vertices = new Vector3[(chunkSize + 1) * (chunkSize + 1)];
+        Vector2[] uv = new Vector2[vertices.Length];
+
+        // Generate vertices and UVs
+        int vertexIndex = 0;
+        for (int d = 0; d <= chunkSize; d++)
+        {
+            for (int w = 0; w <= chunkSize; w++)
+            {
+                vertices[vertexIndex] = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
+                uv[vertexIndex] = new Vector2(w / (float)chunkSize, d / (float)chunkSize);
+                vertexIndex++;
+            }
+        }
+
+        // Generate triangles
+        int[] triangles = new int[chunkSize * chunkSize * 6];
+        int ti = 0;
+        for (int d = 0; d < chunkSize; d++)
+        {
+            for (int w = 0; w < chunkSize; w++)
+            {
+                int baseVertexIndex = d * (chunkSize + 1) + w;
+
+                triangles[ti] = baseVertexIndex;
+                triangles[ti + 1] = baseVertexIndex + chunkSize + 1;
+                triangles[ti + 2] = baseVertexIndex + 1;
+
+                triangles[ti + 3] = baseVertexIndex + 1;
+                triangles[ti + 4] = baseVertexIndex + chunkSize + 1;
+                triangles[ti + 5] = baseVertexIndex + chunkSize + 2;
+
+                ti += 6;
+            }
+        }
+
+        // Simplify triangles (example: remove every other triangle)
+        int[] simplifiedTriangles = new int[triangles.Length / 2];
+        for (int i = 0; i < simplifiedTriangles.Length; i++)
+        {
+            simplifiedTriangles[i] = triangles[i * 2];
+        }
+
+        mesh.vertices = vertices;
+        mesh.triangles = simplifiedTriangles;
+        mesh.uv = uv;
+
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+        mesh.Optimize();
+
+        return mesh;
+    }
+
 
     [BurstCompile]
     struct HeightJob : IJobParallelFor

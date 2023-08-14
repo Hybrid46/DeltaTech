@@ -1,13 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static MeshUtilities;
 
 public class TerrainSimplification
 {
     public HashSet<int> edgeTriangleIndices { get; private set; }
+    public HashSet<int> nonEdgeTriangleIndices { get; private set; }
 
     public void FindEdgeTriangles(Mesh mesh)
     {
         edgeTriangleIndices = new HashSet<int>();
+        nonEdgeTriangleIndices = new HashSet<int>();
 
         Bounds meshBounds = mesh.bounds;
 
@@ -28,10 +31,11 @@ public class TerrainSimplification
                                   IsVertexOnBounds(vertexB, meshBounds) ||
                                   IsVertexOnBounds(vertexC, meshBounds);
 
-            if (isEdgeTriangle) edgeTriangleIndices.Add(triangleIndex / 3);
+            if (isEdgeTriangle) 
+                edgeTriangleIndices.Add(triangleIndex / 3);
+            else
+                nonEdgeTriangleIndices.Add(triangleIndex / 3);
         }
-
-        edgeTriangleIndices.TrimExcess();
     }
 
     private bool IsVertexOnBounds(Vector3 vertex, Bounds bounds)
@@ -86,5 +90,78 @@ public class TerrainSimplification
 
         mesh.triangles = newTriangles.ToArray();
         mesh.RecalculateNormals();
+    }
+
+    public void SimplifyTerrain(Mesh mesh)
+    {
+        FindEdgeTriangles(mesh);
+        RemoveEdgeTriangles(mesh);
+        ScaleTriangles(mesh, 0.25f);
+        RemoveOutsideOfBoundsTriangles(mesh);
+        //AddEdgeTriangles(mesh);
+    }
+
+    //Rescale triangles
+    public void AdjustTriangleScales(Mesh mesh, float scaleFactor)
+    {
+        Vector3[] meshVertices = mesh.vertices;
+        int[] meshTriangles = mesh.triangles;
+
+        foreach (int triangleIndex in meshTriangles)
+        {
+            int vertexIndexA = meshTriangles[triangleIndex * 3];
+            int vertexIndexB = meshTriangles[triangleIndex * 3 + 1];
+            int vertexIndexC = meshTriangles[triangleIndex * 3 + 2];
+
+            Vector3 vertexA = meshVertices[vertexIndexA];
+            Vector3 vertexB = meshVertices[vertexIndexB];
+            Vector3 vertexC = meshVertices[vertexIndexC];
+
+            Vector3 centroid = (vertexA + vertexB + vertexC) / 3.0f;
+            Vector3 scaledCentroid = centroid * scaleFactor;
+
+            meshVertices[vertexIndexA] = Vector3.Lerp(vertexA, scaledCentroid, scaleFactor);
+            meshVertices[vertexIndexB] = Vector3.Lerp(vertexB, scaledCentroid, scaleFactor);
+            meshVertices[vertexIndexC] = Vector3.Lerp(vertexC, scaledCentroid, scaleFactor);
+        }
+
+        mesh.vertices = meshVertices;
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+    }
+
+    public void ScaleTriangles(Mesh mesh, float scaleFactor)
+    {
+        Vector3[] meshVertices = mesh.vertices;
+        int[] meshTriangles = mesh.triangles;
+
+        for (int triangleIndex = 0; triangleIndex < meshTriangles.Length / 3; triangleIndex++)
+        {
+            int vertexIndexA = meshTriangles[triangleIndex * 3];
+            int vertexIndexB = meshTriangles[triangleIndex * 3 + 1];
+            int vertexIndexC = meshTriangles[triangleIndex * 3 + 2];
+
+            Vector3 vertexA = meshVertices[vertexIndexA];
+            Vector3 vertexB = meshVertices[vertexIndexB];
+            Vector3 vertexC = meshVertices[vertexIndexC];
+
+            Vector3 centroid = (vertexA + vertexB + vertexC) / 3.0f;
+
+            Vector3 centroidNormalA = (vertexA - centroid);
+            Vector3 centroidNormalB = (vertexB - centroid);
+            Vector3 centroidNormalC = (vertexC - centroid);
+
+            Vector3 scaledA = vertexA + centroidNormalA * scaleFactor;
+            Vector3 scaledB = vertexB + centroidNormalB * scaleFactor;
+            Vector3 scaledC = vertexC + centroidNormalC * scaleFactor;
+
+            meshVertices[vertexIndexA] = scaledA;
+            meshVertices[vertexIndexB] = scaledB;
+            meshVertices[vertexIndexC] = scaledC;
+        }
+
+        mesh.vertices = meshVertices;
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
     }
 }

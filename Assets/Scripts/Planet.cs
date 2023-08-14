@@ -110,10 +110,13 @@ public class Planet : Singleton<Planet>
     private const float idwRange = 5.0f;
     private Vector3[] idwPattern;
 
-    private Mesh baseMesh;
+    [SerializeField] private Mesh baseMesh;
+    [SerializeField] private Mesh simpleMesh;
 
     NativeArray<Vector3> verticesNative;
     NativeArray<Vector3> verticesHeightNative;
+    NativeArray<Vector3> simpleVerticesNative;
+    NativeArray<Vector3> simpleVerticesHeightNative;
     NativeArray<NoiseSettings> biomeNoiseSettingsNative;
     NativeArray<Vector3> idwPatternNative;
 
@@ -230,7 +233,25 @@ public class Planet : Singleton<Planet>
         verticesHeightNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         baseMesh.vertices.CopyTo(verticesNative);
 
-        terrainSimplification.FindEdgeTriangles(baseMesh);
+        //RemoveTriangleAndVertices(currentChunk.DetailMesh, 0);
+
+        //Mesh simpleMesh = Instantiate(simpleMesh);
+        //terrainSimplification.SimplifyTerrain(simpleMesh);
+        //GenerateSimplifiedHeightMesh(worldPosition, currentChunk.SimpleMesh);
+
+        //ConvertTrianglesToQuads(currentChunk.SimpleMesh);
+
+        //terrainSimplification.RemoveEdgeTriangles(currentChunk.SimpleMesh);
+        //terrainSimplification.SimplifyTerrain(currentChunk.SimpleMesh);
+
+        TerrainSimplification terrainSimplification = new TerrainSimplification();
+        simpleMesh = GenerateSimpleMesh(Vector3.zero);
+        terrainSimplification.SimplifyTerrain(simpleMesh);
+        simpleVerticesNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
+        simpleVerticesHeightNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
+        simpleMesh.vertices.CopyTo(simpleVerticesNative);
+
+        //terrainSimplification.FindEdgeTriangles(baseMesh);
         //terrainSimplification.ColorEdgeTriangles(baseMesh);
         //terrainSimplification.RemoveEdgeTriangles(baseMesh);
 
@@ -278,7 +299,7 @@ public class Planet : Singleton<Planet>
 
         foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
         {
-            SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
+            //SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
             //StaticBatchingUtility.Combine(chunk.Value.gameObject);
             chunk.Value.gameObject.SetActive(false);
         }
@@ -328,12 +349,9 @@ public class Planet : Singleton<Planet>
         currentChunk.DetailMesh = Instantiate(baseMesh);
         GenerateHeightMesh(worldPosition, currentChunk.DetailMesh);
 
-        //RemoveTriangleAndVertices(currentChunk.DetailMesh, 0);
-        currentChunk.SimpleMesh = currentChunk.DetailMesh;
-        //ConvertTrianglesToQuads(currentChunk.SimpleMesh);
+        currentChunk.SimpleMesh = Instantiate(simpleMesh);
+        GenerateSimplifiedHeightMesh(worldPosition, currentChunk.SimpleMesh);
 
-        //terrainSimplification.RemoveEdgeTriangles(currentChunk.SimpleMesh);
-        //terrainSimplification.SimplifyTerrain(currentChunk.SimpleMesh);
         currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, false);
         //currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed, true);
         currentChunk.SimpleMesh.UploadMeshData(true);
@@ -351,9 +369,6 @@ public class Planet : Singleton<Planet>
         {
             for (int w = 0; w <= chunkSize; w++)
             {
-                Vector3 wPosition = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
-                //float height = GetHeight(wPosition);
-                //vertices[i] = new Vector3(worldPosition.x + w, height, worldPosition.z + d);
                 vertices[i] = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
                 i++;
             }
@@ -395,7 +410,6 @@ public class Planet : Singleton<Planet>
         mesh.triangles = triangles;
         mesh.uv = uv;
         SplitVerticesWithUV(mesh);
-        //FlattenTriangleNormals(mesh);
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
         mesh.RecalculateBounds();
@@ -403,56 +417,41 @@ public class Planet : Singleton<Planet>
         return mesh;
     }
 
-    private Mesh GenerateSimplifiedMesh(Vector3 worldPosition, int targetResolution)
+    private Mesh GenerateSimpleMesh(Vector3 worldPosition)
     {
         Mesh mesh = new Mesh();
-        int chunkSize = targetResolution - 1;
 
-        Vector3[] vertices = new Vector3[(chunkSize + 1) * (chunkSize + 1)];
-        Vector2[] uv = new Vector2[vertices.Length];
+        int vertexCount = (chunkSize / 2 + 1) * (chunkSize / 2 + 1);
+        Vector3[] vertices = new Vector3[vertexCount];
+        int[] triangles = new int[(chunkSize / 2) * (chunkSize / 2) * 6];
+        Vector2[] uv = new Vector2[vertexCount];
 
-        // Generate vertices and UVs
-        int vertexIndex = 0;
-        for (int d = 0; d <= chunkSize; d++)
-        {
-            for (int w = 0; w <= chunkSize; w++)
-            {
-                vertices[vertexIndex] = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
-                uv[vertexIndex] = new Vector2(w / (float)chunkSize, d / (float)chunkSize);
-                vertexIndex++;
-            }
-        }
-
-        // Generate triangles
-        int[] triangles = new int[chunkSize * chunkSize * 6];
+        int i = 0;
         int ti = 0;
-        for (int d = 0; d < chunkSize; d++)
+
+        for (int d = 0; d < chunkSize; d += 2)
         {
-            for (int w = 0; w < chunkSize; w++)
+            for (int w = 0; w < chunkSize; w += 2)
             {
-                int baseVertexIndex = d * (chunkSize + 1) + w;
+                vertices[i] = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
 
-                triangles[ti] = baseVertexIndex;
-                triangles[ti + 1] = baseVertexIndex + chunkSize + 1;
-                triangles[ti + 2] = baseVertexIndex + 1;
+                triangles[ti] = i;
+                triangles[ti + 1] = i + chunkSize / 2 + 1;
+                triangles[ti + 2] = i + 1;
 
-                triangles[ti + 3] = baseVertexIndex + 1;
-                triangles[ti + 4] = baseVertexIndex + chunkSize + 1;
-                triangles[ti + 5] = baseVertexIndex + chunkSize + 2;
+                triangles[ti + 3] = i + 1;
+                triangles[ti + 4] = i + chunkSize / 2 + 1;
+                triangles[ti + 5] = i + chunkSize / 2 + 2;
 
+                uv[i] = new Vector2(w / (float)chunkSize, d / (float)chunkSize);
+
+                i++;
                 ti += 6;
             }
         }
 
-        // Simplify triangles (example: remove every other triangle)
-        int[] simplifiedTriangles = new int[triangles.Length / 2];
-        for (int i = 0; i < simplifiedTriangles.Length; i++)
-        {
-            simplifiedTriangles[i] = triangles[i * 2];
-        }
-
         mesh.vertices = vertices;
-        mesh.triangles = simplifiedTriangles;
+        mesh.triangles = triangles;
         mesh.uv = uv;
 
         mesh.RecalculateNormals();
@@ -544,6 +543,31 @@ public class Planet : Singleton<Planet>
         heightJobHandle.Complete();
 
         mesh.vertices = verticesHeightNative.ToArray();
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+        mesh.RecalculateBounds();
+        mesh.Optimize();
+    }
+
+    private void GenerateSimplifiedHeightMesh(Vector3 worldPosition, Mesh mesh)
+    {
+        HeightJob heightJob = new HeightJob()
+        {
+            vertices = simpleVerticesNative,
+            verticesHeight = simpleVerticesHeightNative,
+            worldPosition = worldPosition,
+            baseNoiseSettings = baseSettings.noiseSettings,
+            biomeNoiseSettings = biomeNoiseSettingsNative,
+            idwPattern = idwPatternNative,
+            chunkSize = chunkSize,
+            mapSize = mapSize,
+        };
+
+        JobHandle heightJobHandle = heightJob.Schedule(mesh.vertices.Length, 32);
+
+        heightJobHandle.Complete();
+
+        mesh.vertices = simpleVerticesHeightNative.ToArray();
         mesh.RecalculateNormals();
         mesh.RecalculateTangents();
         mesh.RecalculateBounds();
@@ -884,6 +908,8 @@ public class Planet : Singleton<Planet>
     {
         if (verticesNative.IsCreated) verticesNative.Dispose();
         if (verticesHeightNative.IsCreated) verticesHeightNative.Dispose();
+        if (simpleVerticesNative.IsCreated) simpleVerticesNative.Dispose();
+        if (simpleVerticesHeightNative.IsCreated) simpleVerticesHeightNative.Dispose();
         if (biomeNoiseSettingsNative.IsCreated) biomeNoiseSettingsNative.Dispose();
         if (idwPatternNative.IsCreated) idwPatternNative.Dispose();
     }

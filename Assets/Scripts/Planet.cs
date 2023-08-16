@@ -12,8 +12,6 @@ using Unity.Burst;
 
 public class Planet : Singleton<Planet>
 {
-    TerrainSimplification terrainSimplification = new TerrainSimplification();
-
     [Range(100.0f, 1000.0f)] public float renderDistance = 100.0f;
     public List<Camera> cameras;
     private HashSet<Vector3> activeChunks;
@@ -233,27 +231,13 @@ public class Planet : Singleton<Planet>
         verticesHeightNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         baseMesh.vertices.CopyTo(verticesNative);
 
-        //RemoveTriangleAndVertices(currentChunk.DetailMesh, 0);
-
-        //Mesh simpleMesh = Instantiate(simpleMesh);
-        //terrainSimplification.SimplifyTerrain(simpleMesh);
-        //GenerateSimplifiedHeightMesh(worldPosition, currentChunk.SimpleMesh);
-
-        //ConvertTrianglesToQuads(currentChunk.SimpleMesh);
-
-        //terrainSimplification.RemoveEdgeTriangles(currentChunk.SimpleMesh);
-        //terrainSimplification.SimplifyTerrain(currentChunk.SimpleMesh);
-
         TerrainSimplification terrainSimplification = new TerrainSimplification();
-        simpleMesh = GenerateSimpleMesh(Vector3.zero);
+        //simpleMesh = GenerateSimpleMesh(Vector3.zero);
+        simpleMesh = Instantiate(baseMesh);
         terrainSimplification.SimplifyTerrain(simpleMesh);
         simpleVerticesNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
         simpleVerticesHeightNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
         simpleMesh.vertices.CopyTo(simpleVerticesNative);
-
-        //terrainSimplification.FindEdgeTriangles(baseMesh);
-        //terrainSimplification.ColorEdgeTriangles(baseMesh);
-        //terrainSimplification.RemoveEdgeTriangles(baseMesh);
 
         for (int z = 0; z < mapSize - 1; z += chunkSize)
         {

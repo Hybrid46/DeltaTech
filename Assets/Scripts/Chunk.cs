@@ -179,4 +179,19 @@ public class Chunk : MonoBehaviour
     {
         DestroyChunk();
     }
+
+    /*
+    private void OnDrawGizmos()
+    {
+        Bounds meshBounds = myMeshFilter.sharedMesh.bounds;
+        Bounds innerTriangleBounds = new Bounds(meshBounds.center, new Vector3(meshBounds.size.x - 2, 1, meshBounds.size.z - 2));
+        Bounds innerTriangleQuarterBounds = new Bounds(innerTriangleBounds.center - innerTriangleBounds.size / 4, innerTriangleBounds.size / 2);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawCube(innerTriangleBounds.center, innerTriangleBounds.size);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawCube(innerTriangleQuarterBounds.center, innerTriangleQuarterBounds.size);
+    }
+    */
 }

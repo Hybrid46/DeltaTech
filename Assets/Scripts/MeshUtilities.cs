@@ -350,36 +350,4 @@ public static class MeshUtilities
         mesh.vertices = newVertices;
         mesh.triangles = newTriangles;
     }
-
-    public static void RemoveOutsideOfBoundsTriangles(Mesh mesh)
-    {
-        Vector3[] originalVertices = mesh.vertices;
-        int[] originalTriangles = mesh.triangles;
-
-        List<int> trianglesToKeep = new List<int>();
-
-        for (int triangleIndex = 0; triangleIndex < originalTriangles.Length / 3; triangleIndex++)
-        {
-            int vertexIndexA = originalTriangles[triangleIndex * 3];
-            int vertexIndexB = originalTriangles[triangleIndex * 3 + 1];
-            int vertexIndexC = originalTriangles[triangleIndex * 3 + 2];
-
-            Vector3 vertexA = originalVertices[vertexIndexA];
-            Vector3 vertexB = originalVertices[vertexIndexB];
-            Vector3 vertexC = originalVertices[vertexIndexC];
-
-            if (mesh.bounds.Contains(vertexA) && mesh.bounds.Contains(vertexB) && mesh.bounds.Contains(vertexC))
-            {
-                trianglesToKeep.Add(vertexIndexA);
-                trianglesToKeep.Add(vertexIndexB);
-                trianglesToKeep.Add(vertexIndexC);
-            }
-        }
-
-        mesh.vertices = originalVertices;
-        mesh.triangles = trianglesToKeep.ToArray();
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
-    }
 }

@@ -118,7 +118,23 @@ public class CustomWheelSuspension : MonoBehaviour
             GetSuspensionForce(hit);
             GetSteeringForce();
             if (isMotor) GetAccelerationForce(motor);
+            //Spin();
         }
+    }
+
+    private void Spin()
+    {
+        //car speed
+        float carSpeed = Vector3.Dot(transform.forward, vehicleRigidbody.velocity);
+        // normalized car speed
+        float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / topSpeed);
+
+        float rotationSpeed = 100.0f * normalizedSpeed;
+        Vector3 rotationAxis = Vector3.right;
+
+        float rotationAmount = rotationSpeed * Time.fixedDeltaTime;
+        //transform.Rotate(rotationAxis, rotationAmount);
+        transform.localRotation *= Quaternion.Euler(rotationAmount, 0.0f, 0.0f);
     }
 
     private void Steering(float steeringInput)

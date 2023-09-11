@@ -1875,6 +1875,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1859021746}
+  - component: {fileID: 1859021749}
   - component: {fileID: 1859021745}
   - component: {fileID: 1859021748}
   - component: {fileID: 1859021747}
@@ -2109,6 +2110,22 @@ MonoBehaviour:
     OldPrefabList: []
   RunInBackground: 1
   LogLevel: 1
+--- !u!114 &1859021749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859021744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8c64e2165e69ef4aa967749b42f24c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawDistance: 125
+  instanceMaterial: {fileID: 0}
+  cullingComputeShader: {fileID: 7200000, guid: 32fb8a3205656b64392ab025b5643f40,
+    type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

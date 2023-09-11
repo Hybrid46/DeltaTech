@@ -122,6 +122,8 @@ public class Planet : Singleton<Planet>
     //private List<Bounds> placedPrefabBoundsDebug = new List<Bounds>();
     //private List<Bounds> overlappedPrefabBoundsDebug = new List<Bounds>();
 
+    private List<Vector3> allGrassPos = new List<Vector3>();
+
     private void Start()
     {
         InitializePlanet();
@@ -284,9 +286,11 @@ public class Planet : Singleton<Planet>
         foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
         {
             SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
-            StaticBatchingUtility.Combine(chunk.Value.gameObject);
+            //StaticBatchingUtility.Combine(chunk.Value.gameObject);
             chunk.Value.gameObject.SetActive(false);
         }
+
+        InstancedIndirectGrassRenderer.Instance.allGrassPos = allGrassPos;
 
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
@@ -517,6 +521,7 @@ public class Planet : Singleton<Planet>
     {
         //get poisson disc sampling points then spawn prefabs by chances
         poissonSamples = GetPoissonPoints(poissonSampleMinDistance, chunk.myRenderer.bounds, 100);
+        allGrassPos.AddRange(poissonSamples);
         //Debug.Log($"Poisson points {poissonSamples.Count}");
         //(int placed, int overlapping, int rayMiss) debug = (0, 0, 0);
 

@@ -59,7 +59,7 @@ public class TerrainSimplification
         //RemoveVerticesWithoutTriangles(mesh);
 
         mesh.RecalculateBounds();
-        //mesh.Optimize();
+        mesh.Optimize();
     }
 
     private void FillTriangleIndexesToVertices()

@@ -336,8 +336,9 @@ public class Planet : Singleton<Planet>
         currentChunk.SimpleMesh = Instantiate(simpleMesh);
         GenerateSimplifiedHeightMesh(worldPosition, currentChunk.SimpleMesh);
 
-        currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, false);
-        //currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed, true);
+        //This is only for faster map generation! -> less GC & inaccurate prefab placement
+        //currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, true);
+        currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed, true);
         currentChunk.SimpleMesh.UploadMeshData(true);
         currentChunk.DetailMesh.UploadMeshData(true);
     }

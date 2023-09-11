@@ -78,8 +78,8 @@ public class Planet : Singleton<Planet>
 
     public UnityAction OnChunksGenerated;
 
-    public static int mapSize = 256 + 1;
-    public static int chunkSize = 64;
+    public static readonly int mapSize = 256 + 1;
+    public static readonly int chunkSize = 64;
 
     public GameObject terrainChunk;
 
@@ -226,15 +226,15 @@ public class Planet : Singleton<Planet>
         //Chunk Generation
         exectime = DateTime.Now;
 
-        baseMesh = GenerateMesh(Vector3.zero);
+        baseMesh = GenerateMesh();
         verticesNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         verticesHeightNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         baseMesh.vertices.CopyTo(verticesNative);
 
         TerrainSimplification terrainSimplification = new TerrainSimplification();
-        //simpleMesh = GenerateSimpleMesh(Vector3.zero);
         simpleMesh = Instantiate(baseMesh);
         terrainSimplification.SimplifyTerrain(simpleMesh);
+
         simpleVerticesNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
         simpleVerticesHeightNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
         simpleMesh.vertices.CopyTo(simpleVerticesNative);
@@ -283,8 +283,8 @@ public class Planet : Singleton<Planet>
 
         foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
         {
-            //SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
-            //StaticBatchingUtility.Combine(chunk.Value.gameObject);
+            SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
+            StaticBatchingUtility.Combine(chunk.Value.gameObject);
             chunk.Value.gameObject.SetActive(false);
         }
 
@@ -342,7 +342,7 @@ public class Planet : Singleton<Planet>
         currentChunk.DetailMesh.UploadMeshData(true);
     }
 
-    private Mesh GenerateMesh(Vector3 worldPosition)
+    private Mesh GenerateMesh()
     {
         Mesh mesh = new Mesh();
         Vector3[] vertices = new Vector3[(chunkSize + 1) * (chunkSize + 1)];
@@ -353,7 +353,7 @@ public class Planet : Singleton<Planet>
         {
             for (int w = 0; w <= chunkSize; w++)
             {
-                vertices[i] = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
+                vertices[i] = new Vector3(w, 0.0f, d);
                 i++;
             }
         }
@@ -400,52 +400,6 @@ public class Planet : Singleton<Planet>
         mesh.Optimize();
         return mesh;
     }
-
-    private Mesh GenerateSimpleMesh(Vector3 worldPosition)
-    {
-        Mesh mesh = new Mesh();
-
-        int vertexCount = (chunkSize / 2 + 1) * (chunkSize / 2 + 1);
-        Vector3[] vertices = new Vector3[vertexCount];
-        int[] triangles = new int[(chunkSize / 2) * (chunkSize / 2) * 6];
-        Vector2[] uv = new Vector2[vertexCount];
-
-        int i = 0;
-        int ti = 0;
-
-        for (int d = 0; d < chunkSize; d += 2)
-        {
-            for (int w = 0; w < chunkSize; w += 2)
-            {
-                vertices[i] = new Vector3(worldPosition.x + w, 0.0f, worldPosition.z + d);
-
-                triangles[ti] = i;
-                triangles[ti + 1] = i + chunkSize / 2 + 1;
-                triangles[ti + 2] = i + 1;
-
-                triangles[ti + 3] = i + 1;
-                triangles[ti + 4] = i + chunkSize / 2 + 1;
-                triangles[ti + 5] = i + chunkSize / 2 + 2;
-
-                uv[i] = new Vector2(w / (float)chunkSize, d / (float)chunkSize);
-
-                i++;
-                ti += 6;
-            }
-        }
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.uv = uv;
-
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
-        mesh.Optimize();
-
-        return mesh;
-    }
-
 
     [BurstCompile]
     struct HeightJob : IJobParallelFor

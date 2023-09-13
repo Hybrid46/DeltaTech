@@ -2123,7 +2123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   drawDistance: 125
-  instanceMaterial: {fileID: 0}
+  instanceMaterial: {fileID: 2100000, guid: 532d9c7cc9abe5345bcb45bf268fcec7, type: 2}
   cullingComputeShader: {fileID: 7200000, guid: 32fb8a3205656b64392ab025b5643f40,
     type: 3}
 --- !u!1660057539 &9223372036854775807

@@ -7,7 +7,7 @@ using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-[ExecuteAlways]
+//[ExecuteAlways]
 public class InstancedIndirectGrassRenderer : MonoBehaviour
 {
     [Header("Settings")]

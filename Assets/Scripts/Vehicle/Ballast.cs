@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Propeller : Module
+public class Ballast : Module
 {
     public AnimationCurve powerCurve;
     public float topSpeed = 10.0f;
@@ -8,14 +8,14 @@ public class Propeller : Module
 
     void Update()
     {
-        if (m_Vehicle.verticalInput != 0.0f) AccelerationForce(m_Vehicle.verticalInput);
+        if (m_Vehicle.horizontalInput != 0.0f) BuoyancyForce(m_Vehicle.horizontalInput);
     }
 
-    private void AccelerationForce(float accelerationInput)
+    private void BuoyancyForce(float accelerationInput)
     {
-        Vector3 accelerationDir = m_Transform.forward;
-        float carSpeed = Vector3.Dot(m_Transform.forward, vehicleRigidbody.velocity);
-        float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / topSpeed);
+        Vector3 accelerationDir = Vector3.up;
+        float speed = Vector3.Dot(m_Transform.up, vehicleRigidbody.velocity);
+        float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(speed) / topSpeed);
         float availableTorque = powerCurve.Evaluate(normalizedSpeed) * accelerationInput * motorTorque;
 
         Vector3 force = accelerationDir * availableTorque;

@@ -436,7 +436,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8373c976b126cd46aae9b47ab0fbe1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 10
+  hp: 30
   mass: 300
   buoyancy: -0.25
   powerCurve:

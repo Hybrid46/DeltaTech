@@ -56,7 +56,7 @@ public class Wheel : MonoBehaviour
     }
 }*/
 
-public class CustomWheelSuspension : MonoBehaviour
+public class CustomWheelSuspension : Module
 {
     private Rigidbody vehicleRigidbody;
 

@@ -2008,7 +2008,7 @@ MonoBehaviour:
   poissonSampleMinDistance: 10
   generateNavmeshes: 0
   debugWorldBounds: 0
-  debugChunkBounds: 0
+  debugChunkBounds: 1
   debugHeightMap: 0
   debugIDWPattern: 0
   debugPoisson: 0
@@ -2042,8 +2042,10 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 4
     m_NumAlphaKeys: 2
-  baseMesh: {fileID: 0}
-  simpleMesh: {fileID: 0}
+  baseMesh: {fileID: -462981019419857548, guid: d8be9e3d209b7b741ba0431967a165cb,
+    type: 3}
+  simpleMesh: {fileID: -462981019419857548, guid: f616ac86c4cca574e8cfb45fba523566,
+    type: 3}
 --- !u!4 &1859021746
 Transform:
   m_ObjectHideFlags: 0

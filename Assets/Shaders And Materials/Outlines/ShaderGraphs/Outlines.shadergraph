@@ -234,6 +234,9 @@
         },
         {
             "m_Id": "854d0e1b82ce4e5bb010292f30e351b7"
+        },
+        {
+            "m_Id": "8dc95c69e40f4e7c82214cfe9dbe9ede"
         }
     ],
     "m_GroupDatas": [],
@@ -2266,7 +2269,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "1807537f83034385bb6022c720c8b902",
     "m_Id": 0,
-    "m_DisplayName": "RobertsCrossMultiplier",
+    "m_DisplayName": "CurveMultiplier",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -3236,6 +3239,30 @@
     "m_SlotType": 0,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "3e0ef28f6d6a450eb7f93b2cef5eb836",
+    "m_Id": 1,
+    "m_DisplayName": "Out",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
     "m_Value": {
         "x": 0.0,
@@ -5469,7 +5496,7 @@
         "inversesqrt"
     ],
     "m_Precision": 0,
-    "m_PreviewExpanded": false,
+    "m_PreviewExpanded": true,
     "m_DismissedVersion": 0,
     "m_PreviewMode": 0,
     "m_CustomColors": {
@@ -5740,6 +5767,44 @@
         "y": 0.0,
         "z": 0.0,
         "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.SquareRootNode",
+    "m_ObjectId": "8dc95c69e40f4e7c82214cfe9dbe9ede",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Square Root",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -925.9999389648438,
+            "y": -1366.0,
+            "width": 208.0,
+            "height": 278.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "a0cee66b87aa4f4c8e3dbbde155d5ec1"
+        },
+        {
+            "m_Id": "3e0ef28f6d6a450eb7f93b2cef5eb836"
+        }
+    ],
+    "synonyms": [
+        "sqrt"
+    ],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
     }
 }
 
@@ -6260,6 +6325,30 @@
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
+    "m_ObjectId": "a0cee66b87aa4f4c8e3dbbde155d5ec1",
+    "m_Id": 0,
+    "m_DisplayName": "In",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "In",
     "m_StageCapability": 3,
     "m_Value": {
         "x": 0.0,
@@ -8976,11 +9065,11 @@
     "m_Guid": {
         "m_GuidSerialized": "661d594a-6e2c-4242-aab8-b8a5d7ef0b78"
     },
-    "m_Name": "RobertsCrossMultiplier",
+    "m_Name": "CurveMultiplier",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "RobertsCrossMultiplier",
-    "m_DefaultReferenceName": "RobertsCrossMultiplier",
-    "m_OverrideReferenceName": "_RobertsCrossMultiplier",
+    "m_RefNameGeneratedByDisplayName": "CurveMultiplier",
+    "m_DefaultReferenceName": "_CurveMultiplier",
+    "m_OverrideReferenceName": "_CurveMultiplier",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",

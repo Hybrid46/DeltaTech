@@ -79,7 +79,7 @@ public class Planet : Singleton<Planet>
     public UnityAction OnChunksGenerated;
 
     public static readonly int mapSize = 256 + 1;
-    public static readonly int chunkSize = 64;
+    public static readonly int chunkSize = 32;
 
     public GameObject terrainChunk;
 
@@ -228,14 +228,17 @@ public class Planet : Singleton<Planet>
         //Chunk Generation
         exectime = DateTime.Now;
 
-        baseMesh = GenerateMesh();
+        //baseMesh.RecalculateBounds();
+        //simpleMesh.RecalculateBounds();
+
+        //baseMesh = GenerateMesh();
         verticesNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         verticesHeightNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         baseMesh.vertices.CopyTo(verticesNative);
 
-        TerrainSimplification terrainSimplification = new TerrainSimplification();
-        simpleMesh = Instantiate(baseMesh);
-        terrainSimplification.SimplifyTerrain(simpleMesh);
+        //TerrainSimplification terrainSimplification = new TerrainSimplification();
+        //simpleMesh = Instantiate(baseMesh);
+        //terrainSimplification.SimplifyTerrain(simpleMesh);
 
         simpleVerticesNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
         simpleVerticesHeightNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
@@ -334,9 +337,11 @@ public class Planet : Singleton<Planet>
     //TODO Detail and LOD meshes
     private void GenerateChunkMeshes(Vector3 worldPosition, Chunk currentChunk)
     {
+        currentChunk.myTransform.localPosition = worldPosition;
         currentChunk.DetailMesh = Instantiate(baseMesh);
         GenerateHeightMesh(worldPosition, currentChunk.DetailMesh);
 
+        currentChunk.SimpleMesh = Instantiate(simpleMesh);
         currentChunk.SimpleMesh = Instantiate(simpleMesh);
         GenerateSimplifiedHeightMesh(worldPosition, currentChunk.SimpleMesh);
 
@@ -422,7 +427,7 @@ public class Planet : Singleton<Planet>
         {
             Vector3 currentWorldPosition = worldPosition + vertices[i];
 
-            verticesHeight[i] = new Vector3(currentWorldPosition.x, GetHeight(currentWorldPosition), currentWorldPosition.z);
+            verticesHeight[i] = new Vector3(vertices[i].x, GetHeight(currentWorldPosition), vertices[i].z);
         }
 
         private float GetBaseHeight(Vector3 position) => Mathf.Clamp01(GetNoiseHeight(position, baseNoiseSettings));

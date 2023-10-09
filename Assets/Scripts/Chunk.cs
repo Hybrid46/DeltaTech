@@ -124,7 +124,7 @@ public class Chunk : MonoBehaviour
 
         GameObject combinedObject = new GameObject($"CombinedMesh_{material.name}_{chunkIndex}");
         combinedObject.transform.SetParent(transform);
-        combinedObject.transform.localPosition = Vector3.zero;
+        combinedObject.transform.localPosition = -transform.position;
         combinedObject.transform.localRotation = Quaternion.identity;
         combinedObject.layer = transform.gameObject.layer;
 

@@ -54,8 +54,11 @@ Material:
     m_Floats:
     - _CurveMultiplier: 10
     - _DEPTHCURVES: 1
-    - _DepthThreshold: 0.5
-    - _NormalThreshold: 14.9
+    - _DepthThreshold: 0.4
+    - _MaxClamp: 4.26
+    - _NormalMultiplier: 1.92
+    - _NormalThreshold: 200
+    - _Normal_Edge: -100
     - _OutlineScale: 1
     - _RobertsCrossMultiplier: 10
     - _SteepAngleMultiplier: 10.5

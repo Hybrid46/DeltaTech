@@ -7,13 +7,13 @@ public class TerrainSimplification
     [Serializable]
     public struct Triangle
     {
-        int indexA;
-        int indexB;
-        int indexC;
+        public int indexA;
+        public int indexB;
+        public int indexC;
 
-        Vector3 vertexA;
-        Vector3 vertexB;
-        Vector3 vertexC;
+        public Vector3 vertexA;
+        public Vector3 vertexB;
+        public Vector3 vertexC;
 
         public Triangle(int indexA, int indexB, int indexC, Vector3 vertexA, Vector3 vertexB, Vector3 vertexC)
         {

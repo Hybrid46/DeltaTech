@@ -1,23 +1,9 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public static class StaticUtils
 {
-    [Serializable]
-    public struct MinMax<T1, T2>
-    {
-        public T1 Min;
-        public T2 Max;
-
-        public MinMax(T1 min, T2 max)
-        {
-            Min = min;
-            Max = max;
-        }
-    }
-
     public static float Remap(float input, float inputMin, float inputMax, float targetMin, float targetMax) => targetMin + (input - inputMin) * (targetMax - targetMin) / (inputMax - inputMin);
 
     public static int Array3DTo1D(int x, int y, int z, int xMax, int yMax) => (z * xMax * yMax) + (y * xMax) + x;
@@ -56,7 +42,7 @@ public static class StaticUtils
         return new Vector3(x, y, z);
     }
 
-    //Return local coords!
+    //Returns local coords!
     public static List<Vector2> GeneratePoissonPoints(float minDistance, Vector2 bounds, int maxAttempts)
     {
         List<Vector2> points = new List<Vector2>();
@@ -119,7 +105,7 @@ public static class StaticUtils
     }
 
     //Returns Local coords!
-    public static List<Vector3> GetPoissonPoints(float minDistance, Bounds bounds, int maxAttempts)
+    public static List<Vector3> GeneratePoissonPoints(float minDistance, Bounds bounds, int maxAttempts)
     {
         List<Vector3> points = new List<Vector3>();
         float cellSize = minDistance / Mathf.Sqrt(2);
@@ -180,54 +166,6 @@ public static class StaticUtils
         points.TrimExcess();
         return points;
     }
-
-    /*
-    /Maybe this one can be used to get a randomized pattern like formations for multiple agents
-    public static List<Vector3> GetPoissonPoints(Chunk chunk, float minDistance = 1.0f, int attempts = 10)
-    {
-        List<Vector3> points = new List<Vector3>();
-        Bounds bounds = chunk.myRenderer.bounds;
-
-        Vector3 initialPoint = new Vector3(Random.Range(bounds.min.x, bounds.max.x), bounds.center.y, Random.Range(bounds.min.z, bounds.max.z));
-        points.Add(initialPoint);
-
-        Queue<Vector3> activePoints = new Queue<Vector3>();
-        activePoints.Enqueue(initialPoint);
-
-        float sqrMinDistance = minDistance * minDistance;
-
-        while (activePoints.Count > 0)
-        {
-            Vector3 activePoint = activePoints.Dequeue();
-
-            for (int i = 0; i < attempts; i++)
-            {
-                Vector3 offset = Random.onUnitSphere * minDistance;
-                Vector3 candidate = activePoint + new Vector3(offset.x, 0f, offset.y);
-
-                if (bounds.Contains(candidate) && !IsTooClose(candidate, sqrMinDistance))
-                {
-                    points.Add(candidate);
-                    activePoints.Enqueue(candidate);
-                }
-            }
-        }
-
-        bool IsTooClose(Vector3 point, float sqrMinDistance)
-        {
-            foreach (Vector3 p in points)
-            {
-                if ((point - p).sqrMagnitude < sqrMinDistance)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        return points;
-    }
-    */
 
     public static Texture2D GradientToTexture(Gradient gradient, int width)
     {

@@ -12,9 +12,18 @@ using Unity.Burst;
 
 public class Planet : Singleton<Planet>
 {
-    [Range(100.0f, 1000.0f)] public float renderDistance = 100.0f;
-    public List<Camera> cameras;
-    private HashSet<Vector3> activeChunks;
+    [Serializable]
+    public struct MinMax<T1, T2>
+    {
+        public T1 Min;
+        public T2 Max;
+
+        public MinMax(T1 min, T2 max)
+        {
+            Min = min;
+            Max = max;
+        }
+    }
 
     [Serializable]
     public struct BiomeSettings
@@ -75,6 +84,10 @@ public class Planet : Singleton<Planet>
         public MinMax<Vector3, Vector3> scale;
         public bool alignToNormal;
     }
+
+    [Range(100.0f, 1000.0f)] public float renderDistance = 100.0f;
+    public List<Camera> cameras;
+    private HashSet<Vector3> activeChunks;
 
     public UnityAction OnChunksGenerated;
 
@@ -290,10 +303,9 @@ public class Planet : Singleton<Planet>
         {
             SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
             //StaticBatchingUtility.Combine(chunk.Value.gameObject);
-            chunk.Value.gameObject.SetActive(false);
+            //chunk.Value.gameObject.SetActive(false);
         }
 
-        InstancedIndirectGrassRenderer.Instance.allGrassPos = allGrassPos;
 
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
@@ -307,6 +319,25 @@ public class Planet : Singleton<Planet>
         }
 
         Debug.Log("Meshes combined in: " + (DateTime.Now - exectime).Milliseconds + " ms");
+
+        //Grass spawning
+        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+        {
+            //chunk.Value.gameObject.SetActive(true);
+            poissonSamples = GeneratePoissonPoints(poissonSampleMinDistance, chunk.Value.myRenderer.bounds, 100);
+
+            RaycastHit hit;
+            foreach (Vector3 point in poissonSamples)
+            {
+                if (Physics.Raycast(point + 1000.0f * Vector3.up, Vector3.down, out hit, Mathf.Infinity, spawnLayer))
+                {
+                    allGrassPos.Add(hit.point);
+                }
+            }
+            chunk.Value.gameObject.SetActive(false);
+        }
+
+        InstancedIndirectGrassRenderer.Instance.allGrassPos = allGrassPos;
 
         OnChunksGenerated += ChunksGenerated;
         OnChunksGenerated.Invoke();
@@ -525,8 +556,7 @@ public class Planet : Singleton<Planet>
     private void SpawnPrefabs(Chunk chunk, Dictionary<Chunk, List<Bounds>> placedBounds, int spawnLayer)
     {
         //get poisson disc sampling points then spawn prefabs by chances
-        poissonSamples = GetPoissonPoints(poissonSampleMinDistance, chunk.myRenderer.bounds, 100);
-        allGrassPos.AddRange(poissonSamples);
+        poissonSamples = GeneratePoissonPoints(poissonSampleMinDistance, chunk.myRenderer.bounds, 100);
         //Debug.Log($"Poisson points {poissonSamples.Count}");
         //(int placed, int overlapping, int rayMiss) debug = (0, 0, 0);
 
@@ -800,7 +830,7 @@ public class Planet : Singleton<Planet>
             {
                 if (poissonSamples == null || poissonSamples.Count == 0)
                 {
-                    poissonSamples = GetPoissonPoints(1.0f, ChunkCells[debugChunk].myRenderer.bounds, 100);
+                    poissonSamples = GeneratePoissonPoints(1.0f, ChunkCells[debugChunk].myRenderer.bounds, 100);
                 }
 
                 //local to world and get heights

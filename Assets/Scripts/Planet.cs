@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using static StaticUtils;
-using static MeshUtilities;
+//using static MeshUtilities;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -86,7 +86,6 @@ public class Planet : Singleton<Planet>
     }
 
     [Range(100.0f, 1000.0f)] public float renderDistance = 100.0f;
-    public List<Camera> cameras;
     private HashSet<Vector3> activeChunks;
 
     public UnityAction OnChunksGenerated;
@@ -135,8 +134,6 @@ public class Planet : Singleton<Planet>
     //private List<Bounds> placedPrefabBoundsDebug = new List<Bounds>();
     //private List<Bounds> overlappedPrefabBoundsDebug = new List<Bounds>();
 
-    private List<Vector3> allGrassPos = new List<Vector3>();
-
     private void Start()
     {
         InitializePlanet();
@@ -153,52 +150,48 @@ public class Planet : Singleton<Planet>
         Vector3 currentChunkPosition;
         Vector3 currentWorldPosition;
 
-        for (int c = 0; c < cameras.Count; c++) //TODO -> later when a player disconnects i should deactivate all chunks in visibile range
+        //currentChunkPosition = GetChunkByWorldPosition(Camera.main.position).chunkWorldPos;
+        currentChunkPosition = GetChunkPosition(Camera.main.transform.position);
+
+        for (float z = currentChunkPosition.z - chunkRenderDistance; z <= currentChunkPosition.z + chunkRenderDistance; z += chunkSize)
         {
-            //currentChunkPosition = GetChunkByWorldPosition(cameras[c].position).chunkWorldPos;
-            currentChunkPosition = GetChunkPosition(cameras[c].transform.position);
-
-            for (float z = currentChunkPosition.z - chunkRenderDistance; z <= currentChunkPosition.z + chunkRenderDistance; z += chunkSize)
+            for (float x = currentChunkPosition.x - chunkRenderDistance; x <= currentChunkPosition.x + chunkRenderDistance; x += chunkSize)
             {
-                for (float x = currentChunkPosition.x - chunkRenderDistance; x <= currentChunkPosition.x + chunkRenderDistance; x += chunkSize)
+                currentWorldPosition = new Vector3(x, 0.0f, z);
+
+                if (ChunkCells.ContainsKey(currentWorldPosition))
                 {
-                    currentWorldPosition = new Vector3(x, 0.0f, z);
+                    //if they out of render distance deactivate them, else make them active. TODO -> respawn objects on deactivating and don't forget to check overlapping units!
+                    bool inRenderingDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, Camera.main.transform.position) < renderDistance;
+                    bool inDetailDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, Camera.main.transform.position) < renderDistance * 0.5f;
 
-                    if (ChunkCells.ContainsKey(currentWorldPosition))
+                    ChunkCells[currentWorldPosition].gameObject.SetActive(inRenderingDistance);
+
+                    if (inRenderingDistance)
                     {
-                        //if they out of render distance deactivate them, else make them active. TODO -> respawn objects on deactivating and don't forget to check overlapping units!
-                        bool inRenderingDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, cameras[c].transform.position) < renderDistance;
-                        bool inDetailDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, cameras[c].transform.position) < renderDistance * 0.5f;
-
-                        ChunkCells[currentWorldPosition].gameObject.SetActive(inRenderingDistance);
-
-                        if (inRenderingDistance)
+                        activeChunks.Add(currentWorldPosition);
+                        if (inDetailDistance)
                         {
-                            activeChunks.Add(currentWorldPosition);
-                            if (inDetailDistance)
-                            {
-                                ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Detailed, true);
-                            }
-                            else
-                            {
-                                ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Simple, false);
-                            }
+                            ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Detailed, true);
                         }
                         else
                         {
-                            if (activeChunks.Contains(currentWorldPosition)) activeChunks.Remove(currentWorldPosition);
+                            ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Simple, false);
                         }
-
-                        /*
-                        //TODO chunk frustrum culling?
-                        bool isVisible = GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(cameras[c]), ChunkCells[currentWorldPosition].myRenderer.bounds);
-
-                        if (isVisible)
-                        {
-                            ChunkCells[currentWorldPosition].myRenderer.enabled = isVisible;
-                        }
-                        */
                     }
+                    else
+                    {
+                        if (activeChunks.Contains(currentWorldPosition)) activeChunks.Remove(currentWorldPosition);
+                    }
+
+                    
+                    //chunk frustrum culling
+                    bool isVisible = GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(Camera.main), ChunkCells[currentWorldPosition].myRenderer.bounds);
+
+                    if (isVisible)
+                    {
+                        ChunkCells[currentWorldPosition].myRenderer.enabled = isVisible;
+                    }                    
                 }
             }
         }
@@ -303,7 +296,7 @@ public class Planet : Singleton<Planet>
         {
             SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
             //StaticBatchingUtility.Combine(chunk.Value.gameObject);
-            //chunk.Value.gameObject.SetActive(false);
+            chunk.Value.gameObject.SetActive(false);
         }
 
 
@@ -319,25 +312,6 @@ public class Planet : Singleton<Planet>
         }
 
         Debug.Log("Meshes combined in: " + (DateTime.Now - exectime).Milliseconds + " ms");
-
-        //Grass spawning
-        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
-        {
-            //chunk.Value.gameObject.SetActive(true);
-            poissonSamples = GeneratePoissonPoints(poissonSampleMinDistance, chunk.Value.myRenderer.bounds, 100);
-
-            RaycastHit hit;
-            foreach (Vector3 point in poissonSamples)
-            {
-                if (Physics.Raycast(point + 1000.0f * Vector3.up, Vector3.down, out hit, Mathf.Infinity, spawnLayer))
-                {
-                    allGrassPos.Add(hit.point);
-                }
-            }
-            chunk.Value.gameObject.SetActive(false);
-        }
-
-        InstancedIndirectGrassRenderer.Instance.allGrassPos = allGrassPos;
 
         OnChunksGenerated += ChunksGenerated;
         OnChunksGenerated.Invoke();
@@ -383,6 +357,7 @@ public class Planet : Singleton<Planet>
         currentChunk.DetailMesh.UploadMeshData(true);
     }
 
+    /*
     private Mesh GenerateMesh()
     {
         Mesh mesh = new Mesh();
@@ -441,6 +416,7 @@ public class Planet : Singleton<Planet>
         mesh.Optimize();
         return mesh;
     }
+    */
 
     [BurstCompile]
     struct HeightJob : IJobParallelFor

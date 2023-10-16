@@ -1,7 +1,6 @@
-using Unity.Netcode;
 using UnityEngine;
 
-public class OrbitCamera : NetworkBehaviour
+public class OrbitCamera : MonoBehaviour
 {
     public Transform target;
     public Vector3 offset = new Vector3(0f, 2f, -5f);

@@ -107,6 +107,7 @@ public class Chunk : MonoBehaviour
                 verticesCount += meshVertices;
 
                 childrenRefsLUT[meshFilter.gameObject].meshRenderer.enabled = false;
+                childrenRefsLUT[meshFilter.gameObject].meshRenderer.gameObject.SetActive(false);
             }
 
             // Create the last chunk if any combineInstances remain
@@ -155,12 +156,12 @@ public class Chunk : MonoBehaviour
 
     public void SaveChunkToDisk()
     {
-        throw new NotImplementedException("Chunk not saved");
+        throw new NotImplementedException("Chunk not saved!");
     }
 
     public void LoadChunkFromDisk()
     {
-        throw new NotImplementedException("Chunk not loaded");
+        throw new NotImplementedException("Chunk not loaded!");
     }
 
     public void DestroyChunk()

@@ -60,6 +60,7 @@ public class CustomWheelSuspension : Module
 {
     private Rigidbody vehicleRigidbody;
 
+    public Transform movableChildTransform;
     //suspension
     public float suspensionDampening = 0.1f;
     public float suspensionSpringStrength = 10.0f;
@@ -94,7 +95,7 @@ public class CustomWheelSuspension : Module
         //suspensionRestDist = 0.5f; //TODO can be auto calculated
 
         // Calculate the wheel radius based on the mesh size
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        MeshFilter meshFilter = movableChildTransform.GetComponent<MeshFilter>();
         if (meshFilter != null)
         {
             Mesh mesh = meshFilter.sharedMesh;
@@ -118,7 +119,7 @@ public class CustomWheelSuspension : Module
             GetSuspensionForce(hit);
             GetSteeringForce();
             if (isMotor) GetAccelerationForce(motor);
-            //Spin();
+            Spin();
         }
     }
 
@@ -134,7 +135,7 @@ public class CustomWheelSuspension : Module
 
         float rotationAmount = rotationSpeed * Time.fixedDeltaTime;
         //transform.Rotate(rotationAxis, rotationAmount);
-        transform.localRotation *= Quaternion.Euler(rotationAmount, 0.0f, 0.0f);
+        movableChildTransform.localRotation *= Quaternion.Euler(rotationAmount, 0.0f, 0.0f);
     }
 
     private void Steering(float steeringInput)

@@ -499,6 +499,7 @@ MonoBehaviour:
   hp: 10
   mass: 1
   buoyancy: 0
+  movableChildTransform: {fileID: 1493312878}
   suspensionDampening: 0.9999
   suspensionSpringStrength: 100
   suspensionRestDist: 0.6
@@ -657,6 +658,7 @@ MonoBehaviour:
   hp: 10
   mass: 1
   buoyancy: 0
+  movableChildTransform: {fileID: 1117361097}
   suspensionDampening: 0.9999
   suspensionSpringStrength: 100
   suspensionRestDist: 0.6
@@ -1098,11 +1100,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3384255178960779132, guid: a956695827d31a14c9aff47db60ad88e,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 527020043}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a956695827d31a14c9aff47db60ad88e, type: 3}
 --- !u!4 &527020041 stripped
 Transform:
@@ -1110,71 +1108,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 527020040}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &527020042 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3384255178960779132, guid: a956695827d31a14c9aff47db60ad88e,
+--- !u!114 &527020043 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
     type: 3}
   m_PrefabInstance: {fileID: 527020040}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &527020043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 527020042}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c24551a60e4f83b4a97b6e7ec5c884f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 10
-  mass: 1
-  buoyancy: 0
-  suspensionDampening: 0.9999
-  suspensionSpringStrength: 100
-  suspensionRestDist: 0.6
-  steeringSpeed: 10
-  maxSteeringAngle: 25
-  tireMass: 1
-  tireGripFactor: 0.9
-  powerCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.34434128
-      inSlope: 2.1139846
-      outSlope: 2.1139846
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.2430468
-      value: 0.8581385
-      inSlope: 1.0696872
-      outSlope: 1.0696872
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0.8773575
-      inSlope: 0.02538992
-      outSlope: 0.02538992
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  topSpeed: 3
-  motorTorque: 100
-  isMotor: 1
-  isSteering: 0
 --- !u!1 &630818604
 GameObject:
   m_ObjectHideFlags: 0
@@ -1643,6 +1588,7 @@ MonoBehaviour:
   hp: 10
   mass: 1
   buoyancy: 0
+  movableChildTransform: {fileID: 1890288123}
   suspensionDampening: 0.9999
   suspensionSpringStrength: 100
   suspensionRestDist: 0.6
@@ -1687,6 +1633,12 @@ MonoBehaviour:
   motorTorque: 100
   isMotor: 0
   isSteering: 1
+--- !u!4 &1117361097 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 354437843}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1157681191
 GameObject:
   m_ObjectHideFlags: 0
@@ -1792,6 +1744,12 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157681191}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1493312878 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 350541939}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1859021744
 GameObject:
   m_ObjectHideFlags: 0
@@ -1969,6 +1927,12 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1890288123 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 1021888746}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

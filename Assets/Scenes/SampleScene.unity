@@ -1280,7 +1280,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 300
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -1821,7 +1821,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32db453c34995344da3cf23cc3473920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 200
+  renderDistance: 100
   terrainChunk: {fileID: 3589620711608005247, guid: df79f65c463e29548a5c9aef57e58476,
     type: 3}
   baseSettings:
@@ -1915,7 +1915,6 @@ MonoBehaviour:
       Max: {x: 1.5, y: 1.5, z: 1.5}
     alignToNormal: 0
   poissonSampleMinDistance: 10
-  generateNavmeshes: 0
   debugWorldBounds: 0
   debugChunkBounds: 1
   debugHeightMap: 0

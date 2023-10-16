@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using static StaticUtils;
-//using static MeshUtilities;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -104,8 +103,6 @@ public class Planet : Singleton<Planet>
 
     public float poissonSampleMinDistance = 10.0f;
 
-    public bool generateNavmeshes = false;
-
     public bool debugWorldBounds = true;
     public bool debugChunkBounds = true;
     public bool debugHeightMap = true;
@@ -165,33 +162,27 @@ public class Planet : Singleton<Planet>
                     bool inRenderingDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, Camera.main.transform.position) < renderDistance;
                     bool inDetailDistance = Vector3.Distance(ChunkCells[currentWorldPosition].myRenderer.bounds.center, Camera.main.transform.position) < renderDistance * 0.5f;
 
-                    ChunkCells[currentWorldPosition].gameObject.SetActive(inRenderingDistance);
+                    bool isVisible = GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(Camera.main), ChunkCells[currentWorldPosition].myRenderer.bounds);
 
-                    if (inRenderingDistance)
+                    //ChunkCells[currentWorldPosition].myRenderer.enabled = inRenderingDistance && isVisible;
+                    ChunkCells[currentWorldPosition].gameObject.SetActive(inRenderingDistance && isVisible);
+
+                    if (inRenderingDistance && isVisible)
                     {
                         activeChunks.Add(currentWorldPosition);
                         if (inDetailDistance)
                         {
-                            ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Detailed, true);
+                            ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Detailed);
                         }
                         else
                         {
-                            ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Simple, false);
+                            ChunkCells[currentWorldPosition].SetMeshTo(Chunk.MeshDetail.Simple);
                         }
                     }
                     else
                     {
                         if (activeChunks.Contains(currentWorldPosition)) activeChunks.Remove(currentWorldPosition);
                     }
-
-                    
-                    //chunk frustrum culling
-                    bool isVisible = GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(Camera.main), ChunkCells[currentWorldPosition].myRenderer.bounds);
-
-                    if (isVisible)
-                    {
-                        ChunkCells[currentWorldPosition].myRenderer.enabled = isVisible;
-                    }                    
                 }
             }
         }
@@ -234,17 +225,9 @@ public class Planet : Singleton<Planet>
         //Chunk Generation
         exectime = DateTime.Now;
 
-        //baseMesh.RecalculateBounds();
-        //simpleMesh.RecalculateBounds();
-
-        //baseMesh = GenerateMesh();
         verticesNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         verticesHeightNative = new NativeArray<Vector3>(baseMesh.vertices.Length, Allocator.Persistent);
         baseMesh.vertices.CopyTo(verticesNative);
-
-        //TerrainSimplification terrainSimplification = new TerrainSimplification();
-        //simpleMesh = Instantiate(baseMesh);
-        //terrainSimplification.SimplifyTerrain(simpleMesh);
 
         simpleVerticesNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
         simpleVerticesHeightNative = new NativeArray<Vector3>(simpleMesh.vertices.Length, Allocator.Persistent);
@@ -268,9 +251,6 @@ public class Planet : Singleton<Planet>
         DisposeNatives();
 
         Debug.Log("Chunks generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
-
-        //Build Nav meshes
-        if (generateNavmeshes) ChunkCells[Vector3.zero].myNavMeshSurface.BuildNavMesh();
 
         //Prefab Generation
         exectime = DateTime.Now;
@@ -299,7 +279,6 @@ public class Planet : Singleton<Planet>
             chunk.Value.gameObject.SetActive(false);
         }
 
-
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
         //Mesh combining
@@ -315,10 +294,6 @@ public class Planet : Singleton<Planet>
 
         OnChunksGenerated += ChunksGenerated;
         OnChunksGenerated.Invoke();
-
-        //To debug coordinate functions
-        //Debug.Log("chunk -> " + GetChunkByWorldPosition(new Vector3(123.0f, 0.0f, 71.653f)).name);
-        //Debug.Log("chunk local pos-> " + GetChunkLocalCoord(new Vector3(123.0f, 0.0f, 71.653f)));
     }
 
     public Chunk CreateChunk(Vector3 worldPosition)
@@ -339,7 +314,6 @@ public class Planet : Singleton<Planet>
         return currentChunk;
     }
 
-    //TODO Detail and LOD meshes
     private void GenerateChunkMeshes(Vector3 worldPosition, Chunk currentChunk)
     {
         currentChunk.myTransform.localPosition = worldPosition;
@@ -351,72 +325,11 @@ public class Planet : Singleton<Planet>
         GenerateSimplifiedHeightMesh(worldPosition, currentChunk.SimpleMesh);
 
         //This is only for faster map generation! -> less GC & inaccurate prefab placement
-        //currentChunk.SetMeshTo(Chunk.MeshDetail.Simple, true);
-        currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed, true);
+        currentChunk.SetMeshTo(Chunk.MeshDetail.Simple);
+        //currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed);
         currentChunk.SimpleMesh.UploadMeshData(true);
         currentChunk.DetailMesh.UploadMeshData(true);
     }
-
-    /*
-    private Mesh GenerateMesh()
-    {
-        Mesh mesh = new Mesh();
-        Vector3[] vertices = new Vector3[(chunkSize + 1) * (chunkSize + 1)];
-
-        //vertices
-        int i = 0;
-        for (int d = 0; d <= chunkSize; d++)
-        {
-            for (int w = 0; w <= chunkSize; w++)
-            {
-                vertices[i] = new Vector3(w, 0.0f, d);
-                i++;
-            }
-        }
-
-        //triangles
-        int[] triangles = new int[chunkSize * chunkSize * 6];
-
-        for (int d = 0; d < chunkSize; d++)
-        {
-            for (int w = 0; w < chunkSize; w++)
-            {
-                int ti = (d * (chunkSize) + w) * 6;
-
-                triangles[ti] = (d * (chunkSize + 1)) + w;
-                triangles[ti + 1] = ((d + 1) * (chunkSize + 1)) + w;
-                triangles[ti + 2] = ((d + 1) * (chunkSize + 1)) + w + 1;
-
-                triangles[ti + 3] = (d * (chunkSize + 1)) + w;
-                triangles[ti + 4] = ((d + 1) * (chunkSize + 1)) + w + 1;
-                triangles[ti + 5] = (d * (chunkSize + 1)) + w + 1;
-            }
-        }
-
-        //UV
-        Vector2[] uv = new Vector2[(chunkSize + 1) * (chunkSize + 1)];
-
-        i = 0;
-        for (int d = 0; d <= chunkSize; d++)
-        {
-            for (int w = 0; w <= chunkSize; w++)
-            {
-                uv[i] = new Vector2(w / (float)chunkSize, d / (float)chunkSize);
-                i++;
-            }
-        }
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.uv = uv;
-        SplitVerticesWithUV(mesh);
-        mesh.RecalculateNormals();
-        mesh.RecalculateTangents();
-        mesh.RecalculateBounds();
-        mesh.Optimize();
-        return mesh;
-    }
-    */
 
     [BurstCompile]
     struct HeightJob : IJobParallelFor

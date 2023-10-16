@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.AI.Navigation;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour
@@ -12,7 +11,6 @@ public class Chunk : MonoBehaviour
     public MeshFilter myMeshFilter;
     public MeshCollider myMeshCollider;
     public MeshRenderer myRenderer;
-    public NavMeshSurface myNavMeshSurface;
 
     public Mesh SimpleMesh;
     public Mesh DetailMesh;
@@ -43,7 +41,6 @@ public class Chunk : MonoBehaviour
         myMeshFilter = GetComponent<MeshFilter>();
         myMeshCollider = GetComponent<MeshCollider>();
         myRenderer = GetComponent<MeshRenderer>();
-        myNavMeshSurface = GetComponent<NavMeshSurface>();
     }
 
     public void GetChildrenMeshFilters()
@@ -139,8 +136,10 @@ public class Chunk : MonoBehaviour
         combinedObjectsLUT[material].Add(combinedObject);
     }
 
-    public void SetMeshTo(MeshDetail meshDetail, bool setCollider)
+    public void SetMeshTo(MeshDetail meshDetail)
     {
+        this.meshDetail = meshDetail;
+
         switch (meshDetail)
         {
             case MeshDetail.Simple:
@@ -151,7 +150,7 @@ public class Chunk : MonoBehaviour
                 break;
         }
 
-        if (setCollider) myMeshCollider.sharedMesh = myMeshFilter.sharedMesh;
+        myMeshCollider.sharedMesh = myMeshFilter.sharedMesh;
     }
 
     public void SaveChunkToDisk()

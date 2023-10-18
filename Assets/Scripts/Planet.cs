@@ -321,7 +321,6 @@ public class Planet : Singleton<Planet>
         GenerateHeightMesh(worldPosition, currentChunk.DetailMesh);
 
         currentChunk.SimpleMesh = Instantiate(simpleMesh);
-        currentChunk.SimpleMesh = Instantiate(simpleMesh);
         GenerateSimplifiedHeightMesh(worldPosition, currentChunk.SimpleMesh);
 
         //This is only for faster map generation! -> less GC & inaccurate prefab placement

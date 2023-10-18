@@ -544,6 +544,8 @@ MonoBehaviour:
   motorTorque: 100
   isMotor: 1
   isSteering: 0
+  wheelRadius: 0
+  wheelWidth: 0
 --- !u!1001 &354437843
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -703,6 +705,8 @@ MonoBehaviour:
   motorTorque: 100
   isMotor: 0
   isSteering: 1
+  wheelRadius: 0
+  wheelWidth: 0
 --- !u!1 &386857486
 GameObject:
   m_ObjectHideFlags: 0
@@ -1633,6 +1637,8 @@ MonoBehaviour:
   motorTorque: 100
   isMotor: 0
   isSteering: 1
+  wheelRadius: 0
+  wheelWidth: 0
 --- !u!4 &1117361097 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,
@@ -1908,6 +1914,7 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 4
     m_NumAlphaKeys: 2
+  worldBoundsObject: {fileID: 0}
   baseMesh: {fileID: -462981019419857548, guid: d8be9e3d209b7b741ba0431967a165cb,
     type: 3}
   simpleMesh: {fileID: -462981019419857548, guid: f616ac86c4cca574e8cfb45fba523566,

@@ -12,7 +12,7 @@ public class VehicleController : MonoBehaviour
         vehicleRigidbody = GetComponent<Rigidbody>();
     }
 
-    /*
+    
      //TODO central controller for wheels
     private void FixedUpdate()
     {
@@ -23,5 +23,17 @@ public class VehicleController : MonoBehaviour
         {
             
         }
-    }*/
+
+        //Unstuck
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            RaycastHit hit;
+
+            if (Physics.Raycast(vehicleRigidbody.gameObject.transform.position + Vector3.up * 100.0f, -Vector3.up, out hit))
+            {
+                vehicleRigidbody.gameObject.transform.rotation = Quaternion.identity;
+                vehicleRigidbody.gameObject.transform.position = hit.point + hit.normal * 10.0f;
+            }
+        }
+    }
 }

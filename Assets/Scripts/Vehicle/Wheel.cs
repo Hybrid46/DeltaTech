@@ -122,6 +122,7 @@ public class CustomWheelSuspension : Module
             GetSteeringForce();
             if (isMotor) GetAccelerationForce(motor);
             Spin();
+            movableChildTransform.position = hit.point + new Vector3(0.0f, wheelRadius, 0.0f);
         }
     }
 

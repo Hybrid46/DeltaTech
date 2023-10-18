@@ -81,7 +81,8 @@ public class CustomWheelSuspension : Module
     public bool isMotor;
     public bool isSteering;
 
-    private float wheelRadius;
+    [SerializeField] private float wheelRadius;
+    [SerializeField] private float wheelWidth;
 
 #if DEBUG
     private Vector3 debugSuspensionForce;
@@ -102,6 +103,7 @@ public class CustomWheelSuspension : Module
             if (mesh != null)
             {
                 wheelRadius = mesh.bounds.extents.y;
+                wheelWidth = mesh.bounds.extents.x;
             }
         }
     }
@@ -113,7 +115,7 @@ public class CustomWheelSuspension : Module
 
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, -transform.up, out hit, wheelRadius * 10))
+        if (Physics.Raycast(transform.position, -transform.up, out hit, wheelRadius))
         {
             if (isSteering) Steering(steering);
             GetSuspensionForce(hit);
@@ -128,14 +130,12 @@ public class CustomWheelSuspension : Module
         //car speed
         float carSpeed = Vector3.Dot(transform.forward, vehicleRigidbody.velocity);
         // normalized car speed
-        float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / topSpeed);
+        float normalizedSpeedSigned = Mathf.Clamp01(carSpeed / topSpeed);
 
-        float rotationSpeed = 100.0f * normalizedSpeed;
+        float rotationSpeed = 360.0f * normalizedSpeedSigned * Time.fixedDeltaTime;
         Vector3 rotationAxis = Vector3.right;
 
-        float rotationAmount = rotationSpeed * Time.fixedDeltaTime;
-        //transform.Rotate(rotationAxis, rotationAmount);
-        movableChildTransform.localRotation *= Quaternion.Euler(rotationAmount, 0.0f, 0.0f);
+        movableChildTransform.Rotate(rotationAxis, rotationSpeed);
     }
 
     private void Steering(float steeringInput)
@@ -210,13 +210,13 @@ public class CustomWheelSuspension : Module
 
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, -transform.up, out hit, wheelRadius * 10))
+        if (Physics.Raycast(transform.position, -transform.up, out hit, wheelRadius))
         {
-            GizmosExtend.DrawLine(transform.position, transform.position + (-transform.up * wheelRadius * 10), Color.red);
+            GizmosExtend.DrawLine(transform.position, transform.position + (-transform.up * wheelRadius), Color.red);
         }
         else
         {
-            GizmosExtend.DrawLine(transform.position, transform.position + (-transform.up * wheelRadius * 10), Color.magenta);
+            GizmosExtend.DrawLine(transform.position, transform.position + (-transform.up * wheelRadius), Color.magenta);
         }
     }
 }

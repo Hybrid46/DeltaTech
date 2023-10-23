@@ -111,7 +111,7 @@ public class Planet : Singleton<Planet>
     public bool debugPoisson = false;
     public Gradient debugGradient;
 
-    public GameObject[] worldBoundsPlanes;
+    public GameObject worldBoundsCube;
     private Bounds worldBounds = new Bounds();
 
     private const float idwStepSize = 1.0f;
@@ -247,9 +247,9 @@ public class Planet : Singleton<Planet>
             }
         }
 
-        //TODO
-        //worldBoundsPlanes.transform.position = worldBounds.center;
-        //worldBoundsPlanes.transform.localScale = new Vector3(worldBounds.size.x, 2000.0f, worldBounds.size.z);
+        //Set world bounds cube
+        worldBoundsCube.transform.position = worldBounds.center;
+        worldBoundsCube.transform.localScale = new Vector3(worldBounds.size.x * 0.5f, 2000.0f, worldBounds.size.z * 0.5f);
 
         ChunkCells.TrimExcess();
         activeChunks = new HashSet<Vector3>(ChunkCells.Count);

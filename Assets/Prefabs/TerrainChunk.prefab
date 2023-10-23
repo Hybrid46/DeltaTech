@@ -103,7 +103,6 @@ MonoBehaviour:
   myMeshFilter: {fileID: 0}
   myMeshCollider: {fileID: 0}
   myRenderer: {fileID: 0}
-  myNavMeshSurface: {fileID: 0}
   SimpleMesh: {fileID: 0}
   DetailMesh: {fileID: 0}
   meshDetail: 0

@@ -576,6 +576,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 350541942}
+    - targetCorrespondingSourceObject: {fileID: 3384255178960779132, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 350541943}
   m_SourcePrefab: {fileID: 100100000, guid: a956695827d31a14c9aff47db60ad88e, type: 3}
 --- !u!4 &350541940 stripped
 Transform:
@@ -605,13 +609,8 @@ MonoBehaviour:
   mass: 1
   buoyancy: 0
   movableChildTransform: {fileID: 1493312878}
-  suspensionDampening: 0.9999
-  suspensionSpringStrength: 80
-  suspensionRestDist: 0.6
-  steeringSpeed: 10
+  steeringSpeed: 20
   maxSteeringAngle: 25
-  tireMass: 1
-  tireGripFactor: 0.9
   powerCurve:
     serializedVersion: 2
     m_Curve:
@@ -651,6 +650,45 @@ MonoBehaviour:
   isSteering: 0
   wheelRadius: 0
   wheelWidth: 0
+--- !u!146 &350541943
+WheelCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350541941}
+  serializedVersion: 2
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.3
+  m_SuspensionSpring:
+    spring: 100
+    damper: 0.9
+    targetPosition: 0.5
+  m_SuspensionDistance: 0.3
+  m_ForceAppPointDistance: 0
+  m_Mass: 1
+  m_WheelDampingRate: 0.25
+  m_ForwardFriction:
+    m_ExtremumSlip: 0.4
+    m_ExtremumValue: 1
+    m_AsymptoteSlip: 0.8
+    m_AsymptoteValue: 0.5
+    m_Stiffness: 1
+  m_SidewaysFriction:
+    m_ExtremumSlip: 0.2
+    m_ExtremumValue: 1
+    m_AsymptoteSlip: 0.5
+    m_AsymptoteValue: 0.75
+    m_Stiffness: 1
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_Enabled: 1
+  m_ProvidesContacts: 0
 --- !u!1001 &354437843
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -737,6 +775,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 354437846}
+    - targetCorrespondingSourceObject: {fileID: 3384255178960779132, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 354437847}
   m_SourcePrefab: {fileID: 100100000, guid: a956695827d31a14c9aff47db60ad88e, type: 3}
 --- !u!4 &354437844 stripped
 Transform:
@@ -766,13 +808,8 @@ MonoBehaviour:
   mass: 1
   buoyancy: 0
   movableChildTransform: {fileID: 1117361097}
-  suspensionDampening: 0.9999
-  suspensionSpringStrength: 80
-  suspensionRestDist: 0.6
-  steeringSpeed: 10
+  steeringSpeed: 20
   maxSteeringAngle: 25
-  tireMass: 1
-  tireGripFactor: 0.9
   powerCurve:
     serializedVersion: 2
     m_Curve:
@@ -812,6 +849,45 @@ MonoBehaviour:
   isSteering: 1
   wheelRadius: 0
   wheelWidth: 0
+--- !u!146 &354437847
+WheelCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 354437845}
+  serializedVersion: 2
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.3
+  m_SuspensionSpring:
+    spring: 100
+    damper: 0.9
+    targetPosition: 0.5
+  m_SuspensionDistance: 0.3
+  m_ForceAppPointDistance: 0
+  m_Mass: 1
+  m_WheelDampingRate: 0.25
+  m_ForwardFriction:
+    m_ExtremumSlip: 0.4
+    m_ExtremumValue: 1
+    m_AsymptoteSlip: 0.8
+    m_AsymptoteValue: 0.5
+    m_Stiffness: 1
+  m_SidewaysFriction:
+    m_ExtremumSlip: 0.2
+    m_ExtremumValue: 1
+    m_AsymptoteSlip: 0.5
+    m_AsymptoteValue: 0.75
+    m_Stiffness: 1
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_Enabled: 1
+  m_ProvidesContacts: 0
 --- !u!1 &386857486
 GameObject:
   m_ObjectHideFlags: 0
@@ -1138,6 +1214,21 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: motorTorque
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: steeringSpeed
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
       propertyPath: suspensionSpringStrength
       value: 80
       objectReference: {fileID: 0}
@@ -1214,7 +1305,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3384255178960779132, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1604225207}
   m_SourcePrefab: {fileID: 100100000, guid: a956695827d31a14c9aff47db60ad88e, type: 3}
 --- !u!4 &527020041 stripped
 Transform:
@@ -1228,7 +1323,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 527020040}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1604225206}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c24551a60e4f83b4a97b6e7ec5c884f3, type: 3}
@@ -1900,6 +1995,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1021888749}
+    - targetCorrespondingSourceObject: {fileID: 3384255178960779132, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1021888750}
   m_SourcePrefab: {fileID: 100100000, guid: a956695827d31a14c9aff47db60ad88e, type: 3}
 --- !u!4 &1021888747 stripped
 Transform:
@@ -1929,13 +2028,8 @@ MonoBehaviour:
   mass: 1
   buoyancy: 0
   movableChildTransform: {fileID: 1890288123}
-  suspensionDampening: 0.9999
-  suspensionSpringStrength: 80
-  suspensionRestDist: 0.6
-  steeringSpeed: 10
+  steeringSpeed: 20
   maxSteeringAngle: 25
-  tireMass: 1
-  tireGripFactor: 0.9
   powerCurve:
     serializedVersion: 2
     m_Curve:
@@ -1975,6 +2069,45 @@ MonoBehaviour:
   isSteering: 1
   wheelRadius: 0
   wheelWidth: 0
+--- !u!146 &1021888750
+WheelCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1021888748}
+  serializedVersion: 2
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.3
+  m_SuspensionSpring:
+    spring: 100
+    damper: 0.9
+    targetPosition: 0.5
+  m_SuspensionDistance: 0.3
+  m_ForceAppPointDistance: 0
+  m_Mass: 1
+  m_WheelDampingRate: 0.25
+  m_ForwardFriction:
+    m_ExtremumSlip: 0.4
+    m_ExtremumValue: 1
+    m_AsymptoteSlip: 0.8
+    m_AsymptoteValue: 0.5
+    m_Stiffness: 1
+  m_SidewaysFriction:
+    m_ExtremumSlip: 0.2
+    m_ExtremumValue: 1
+    m_AsymptoteSlip: 0.5
+    m_AsymptoteValue: 0.75
+    m_Stiffness: 1
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_Enabled: 1
+  m_ProvidesContacts: 0
 --- !u!4 &1117361097 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,
@@ -2237,6 +2370,51 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 350541939}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1604225206 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3384255178960779132, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 527020040}
+  m_PrefabAsset: {fileID: 0}
+--- !u!146 &1604225207
+WheelCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604225206}
+  serializedVersion: 2
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.3
+  m_SuspensionSpring:
+    spring: 100
+    damper: 0.9
+    targetPosition: 0.5
+  m_SuspensionDistance: 0.3
+  m_ForceAppPointDistance: 0
+  m_Mass: 1
+  m_WheelDampingRate: 0.25
+  m_ForwardFriction:
+    m_ExtremumSlip: 0.4
+    m_ExtremumValue: 1
+    m_AsymptoteSlip: 0.8
+    m_AsymptoteValue: 0.5
+    m_Stiffness: 1
+  m_SidewaysFriction:
+    m_ExtremumSlip: 0.2
+    m_ExtremumValue: 1
+    m_AsymptoteSlip: 0.5
+    m_AsymptoteValue: 0.75
+    m_Stiffness: 1
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_Enabled: 1
+  m_ProvidesContacts: 0
 --- !u!1 &1678639508
 GameObject:
   m_ObjectHideFlags: 0

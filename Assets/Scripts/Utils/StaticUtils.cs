@@ -234,4 +234,6 @@ public static class StaticUtils
 
         return pattern.ToArray();
     }
+
+    public static float CalcCylinderVolume(float height, float radius) => height * Mathf.PI * radius * radius;
 }

@@ -1,102 +1,104 @@
-﻿#define DEBUG
-using GizmoExtension;
+﻿using GizmoExtension;
 using System;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class CustomWheelSuspension : Module
 {
-    private Rigidbody vehicleRigidbody;
-    private WheelCollider wheelCollider;
+    private Rigidbody m_VehicleRigidbody;
+    private WheelCollider m_WheelCollider;
+    public Transform m_WheelTransform;
+    public MeshFilter m_WheelMeshFilter;
 
-    public Transform movableChildTransform;
+    public bool isMotor;
+    public bool isSteering;
+    public bool hasBreak;
 
     //steering
-    private float desiredSteering = 0.0f;
-    public float steeringSpeed = 2.0f;
-    [Range(0.0f, 90.0f)] public float maxSteeringAngle = 20.0f;
+    public float steeringSpeed = 10.0f;
+    [Range(0.0f, 90.0f)] public float maxSteeringAngle = 25.0f;
 
     //acceleration
     public AnimationCurve powerCurve;
     public float topSpeed = 20.0f;
     public float motorTorque = 100.0f;
 
-    public bool isMotor;
-    public bool isSteering;
+    public float breakRestTorque = 10.0f;
+    public float breakTorque = 50.0f;
 
     [SerializeField] private float wheelRadius;
     [SerializeField] private float wheelWidth;
 
-#if DEBUG
-    private Vector3 debugAccelerationForce;
-#endif
+    [SerializeField] private float motor;
+    [SerializeField] private float steering;
+    [SerializeField] private bool breaking;
+
+    [SerializeField] private float forwardSpeed;
+    [SerializeField] private float speed;
+
+    [SerializeField] private float actualSteering = 0.0f;
+    [SerializeField] private float actualMotorTorque = 0.0f;
+    [SerializeField] private float actualBreakTorque = 0.0f;
 
     private void Start()
     {
-        vehicleRigidbody = transform.root.GetComponent<Rigidbody>();
-        wheelCollider = GetComponent<WheelCollider>();
-        //suspensionRestDist = 0.5f; //TODO can be auto calculated
+        m_VehicleRigidbody = transform.root.GetComponent<Rigidbody>();
+        m_WheelCollider = GetComponent<WheelCollider>();
 
-        // Calculate the wheel radius based on the mesh size
-        MeshFilter meshFilter = movableChildTransform.GetComponent<MeshFilter>();
-        if (meshFilter != null)
-        {
-            Mesh mesh = meshFilter.sharedMesh;
-            if (mesh != null)
-            {
-                wheelRadius = mesh.bounds.extents.y;
-                wheelWidth = mesh.bounds.extents.x;
-            }
-        }
+        wheelRadius = m_WheelMeshFilter.sharedMesh.bounds.extents.y;
+        wheelWidth = m_WheelMeshFilter.sharedMesh.bounds.extents.x;
+
+        m_WheelCollider.radius = wheelRadius;
+        m_WheelCollider.mass = StaticUtils.CalcCylinderVolume(wheelWidth, wheelRadius) * 1000;
     }
 
     private void FixedUpdate()
     {
-        float motor = Input.GetAxis("Vertical") * motorTorque;
-        float steering = Input.GetAxis("Horizontal") * maxSteeringAngle;
+        motor = Input.GetAxis("Vertical");
+        steering = Input.GetAxis("Horizontal") * maxSteeringAngle;
+        breaking = Input.GetKey(KeyCode.Space);
 
-        if (isSteering) Steering(steering);
-        if (isMotor) GetAccelerationForce(motor);
+        if (isSteering) Steering();
+        if (isMotor) Acceleration();
+        if (hasBreak) Break();
         UpdateWheel();
+
+        speed = m_VehicleRigidbody.velocity.magnitude;
+        forwardSpeed = Vector3.Project(m_VehicleRigidbody.velocity, m_VehicleRigidbody.transform.forward).magnitude;
     }
 
     private void UpdateWheel()
     {
-        Quaternion quat;
-        Vector3 position;
-        wheelCollider.GetWorldPose(out position, out quat);
-        movableChildTransform.position = position;
-        movableChildTransform.rotation = quat;
+        Quaternion wheelRotation;
+        Vector3 wheelPosition;
+        m_WheelCollider.GetWorldPose(out wheelPosition, out wheelRotation);
+        m_WheelTransform.position = wheelPosition;
+        m_WheelTransform.rotation = wheelRotation;
     }
 
-    private void Steering(float steeringInput)
+    private void Steering()
     {
-        // Calculate the desired rotation for steering
-        desiredSteering = Mathf.Lerp(desiredSteering, steeringInput, Time.deltaTime * steeringSpeed);
-        wheelCollider.steerAngle = desiredSteering;
+        actualSteering = Mathf.Lerp(actualSteering, steering, Time.deltaTime * steeringSpeed);
+        m_WheelCollider.steerAngle = actualSteering;
     }
 
-    private void GetAccelerationForce(float accelerationInput)
+    private void Acceleration()
     {
-        if (accelerationInput != 0.0f)
-        {
-            // world-space direction of the acceleration/braking force.
-            Vector3 accelerationDir = transform.forward;
-            // acceleration torque
-            // forward speed of the car (in the direction of driving)
-            float carSpeed = Vector3.Dot(transform.forward, vehicleRigidbody.velocity);
-            // normalized car speed
-            float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / topSpeed);
-            // available torque
-            float availableTorque = powerCurve.Evaluate(normalizedSpeed) * accelerationInput;
+        actualMotorTorque = motor > 0.0f ? powerCurve.Evaluate(motor) * motorTorque : -powerCurve.Evaluate(Mathf.Abs(motor)) * motorTorque;
+        m_WheelCollider.motorTorque = actualMotorTorque;
+    }
 
-            vehicleRigidbody.AddForceAtPosition(accelerationDir * availableTorque, transform.position);
-            debugAccelerationForce = accelerationDir * availableTorque;
-        }
+    private void Break()
+    {
+        actualBreakTorque = 0.0f;
+        actualBreakTorque += (motor == 0.0f) ? breakRestTorque : 0.0f;
+        actualBreakTorque += breaking ? breakTorque : 0.0f;
+        m_WheelCollider.brakeTorque = actualBreakTorque;
     }
 
     private void OnDrawGizmos()
     {
-        GizmosExtend.DrawArrow(transform.position, debugAccelerationForce, Color.blue);
+        GizmosExtend.DrawArrow(transform.position, transform.forward * actualMotorTorque, Color.blue);
+        GizmosExtend.DrawArrow(transform.position, transform.forward * actualBreakTorque, Color.yellow);
     }
 }

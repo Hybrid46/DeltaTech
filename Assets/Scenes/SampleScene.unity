@@ -608,8 +608,12 @@ MonoBehaviour:
   hp: 10
   mass: 1
   buoyancy: 0
-  movableChildTransform: {fileID: 1493312878}
-  steeringSpeed: 20
+  m_WheelTransform: {fileID: 1493312878}
+  m_WheelMeshFilter: {fileID: 1795804844}
+  isMotor: 1
+  isSteering: 0
+  hasBreak: 1
+  steeringSpeed: 10
   maxSteeringAngle: 25
   powerCurve:
     serializedVersion: 2
@@ -617,17 +621,17 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0.34434128
-      inSlope: 2.1139846
-      outSlope: 2.1139846
+      inSlope: 2.181914
+      outSlope: 2.181914
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 0.2430468
-      value: 0.8581385
-      inSlope: 1.0696872
-      outSlope: 1.0696872
+      value: 0.8746485
+      inSlope: 1.0927465
+      outSlope: 1.0927465
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -635,8 +639,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 0.8773575
-      inSlope: 0.02538992
-      outSlope: 0.02538992
+      inSlope: 0.0035787835
+      outSlope: 0.0035787835
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -644,12 +648,20 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  topSpeed: 3
-  motorTorque: 100
-  isMotor: 1
-  isSteering: 0
+  topSpeed: 100
+  motorTorque: 400
+  breakRestTorque: 10
+  breakTorque: 200
   wheelRadius: 0
   wheelWidth: 0
+  motor: 0
+  steering: 0
+  breaking: 0
+  forwardSpeed: 0
+  speed: 0
+  actualSteering: 0
+  actualMotorTorque: 0
+  actualBreakTorque: 0
 --- !u!146 &350541943
 WheelCollider:
   m_ObjectHideFlags: 0
@@ -661,7 +673,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 0.3
   m_SuspensionSpring:
-    spring: 100
+    spring: 20000
     damper: 0.9
     targetPosition: 0.5
   m_SuspensionDistance: 0.3
@@ -807,8 +819,12 @@ MonoBehaviour:
   hp: 10
   mass: 1
   buoyancy: 0
-  movableChildTransform: {fileID: 1117361097}
-  steeringSpeed: 20
+  m_WheelTransform: {fileID: 1117361097}
+  m_WheelMeshFilter: {fileID: 1117361099}
+  isMotor: 0
+  isSteering: 1
+  hasBreak: 1
+  steeringSpeed: 10
   maxSteeringAngle: 25
   powerCurve:
     serializedVersion: 2
@@ -816,17 +832,17 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0.34434128
-      inSlope: 2.1139846
-      outSlope: 2.1139846
+      inSlope: 2.181914
+      outSlope: 2.181914
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 0.2430468
-      value: 0.8581385
-      inSlope: 1.0696872
-      outSlope: 1.0696872
+      value: 0.8746485
+      inSlope: 1.0927465
+      outSlope: 1.0927465
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -834,8 +850,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 0.8773575
-      inSlope: 0.02538992
-      outSlope: 0.02538992
+      inSlope: 0.0035787835
+      outSlope: 0.0035787835
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -843,12 +859,20 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  topSpeed: 3
-  motorTorque: 100
-  isMotor: 0
-  isSteering: 1
+  topSpeed: 100
+  motorTorque: 400
+  breakRestTorque: 10
+  breakTorque: 200
   wheelRadius: 0
   wheelWidth: 0
+  motor: 0
+  steering: 0
+  breaking: 0
+  forwardSpeed: 0
+  speed: 0
+  actualSteering: 0
+  actualMotorTorque: 0
+  actualBreakTorque: 0
 --- !u!146 &354437847
 WheelCollider:
   m_ObjectHideFlags: 0
@@ -860,7 +884,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 0.3
   m_SuspensionSpring:
-    spring: 100
+    spring: 20000
     damper: 0.9
     targetPosition: 0.5
   m_SuspensionDistance: 0.3
@@ -936,7 +960,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 386857486}
   serializedVersion: 4
-  m_Mass: 10
+  m_Mass: 1500
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1214,23 +1238,93 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
+      propertyPath: hasBreak
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: topSpeed
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
+      propertyPath: breakTorque
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
       propertyPath: motorTorque
-      value: 100
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
       propertyPath: steeringSpeed
-      value: 20
+      value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: breakRestTorque
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: m_WheelTransform
+      value: 
+      objectReference: {fileID: 701880019}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: m_WheelMeshFilter
+      value: 
+      objectReference: {fileID: 701880021}
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
       propertyPath: suspensionSpringStrength
       value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: powerCurve.m_Curve.Array.data[1].time
+      value: 0.2430468
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: powerCurve.m_Curve.Array.data[1].value
+      value: 0.8746485
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: powerCurve.m_Curve.Array.data[0].inSlope
+      value: 2.181914
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: powerCurve.m_Curve.Array.data[1].inSlope
+      value: 1.0927465
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: powerCurve.m_Curve.Array.data[2].inSlope
+      value: 0.0035787835
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: powerCurve.m_Curve.Array.data[0].outSlope
+      value: 2.181914
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: powerCurve.m_Curve.Array.data[1].outSlope
+      value: 1.0927465
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
+      propertyPath: powerCurve.m_Curve.Array.data[2].outSlope
+      value: 0.0035787835
       objectReference: {fileID: 0}
     - target: {fileID: 3384255178960779132, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
@@ -1529,6 +1623,18 @@ MonoBehaviour:
   minDistance: 1
   maxDistance: 10
   zoomSpeed: 5
+--- !u!4 &701880019 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 527020040}
+  m_PrefabAsset: {fileID: 0}
+--- !u!33 &701880021 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 3684326145262485850, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 527020040}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &718455389
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2027,8 +2133,12 @@ MonoBehaviour:
   hp: 10
   mass: 1
   buoyancy: 0
-  movableChildTransform: {fileID: 1890288123}
-  steeringSpeed: 20
+  m_WheelTransform: {fileID: 1890288123}
+  m_WheelMeshFilter: {fileID: 1890288125}
+  isMotor: 0
+  isSteering: 1
+  hasBreak: 1
+  steeringSpeed: 10
   maxSteeringAngle: 25
   powerCurve:
     serializedVersion: 2
@@ -2036,17 +2146,17 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0.34434128
-      inSlope: 2.1139846
-      outSlope: 2.1139846
+      inSlope: 2.181914
+      outSlope: 2.181914
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
       time: 0.2430468
-      value: 0.8581385
-      inSlope: 1.0696872
-      outSlope: 1.0696872
+      value: 0.8746485
+      inSlope: 1.0927465
+      outSlope: 1.0927465
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -2054,8 +2164,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 0.8773575
-      inSlope: 0.02538992
-      outSlope: 0.02538992
+      inSlope: 0.0035787835
+      outSlope: 0.0035787835
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -2063,12 +2173,20 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  topSpeed: 3
-  motorTorque: 100
-  isMotor: 0
-  isSteering: 1
+  topSpeed: 100
+  motorTorque: 400
+  breakRestTorque: 10
+  breakTorque: 200
   wheelRadius: 0
   wheelWidth: 0
+  motor: 0
+  steering: 0
+  breaking: 0
+  forwardSpeed: 0
+  speed: 0
+  actualSteering: 0
+  actualMotorTorque: 0
+  actualBreakTorque: 0
 --- !u!146 &1021888750
 WheelCollider:
   m_ObjectHideFlags: 0
@@ -2080,7 +2198,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 0.3
   m_SuspensionSpring:
-    spring: 100
+    spring: 20000
     damper: 0.9
     targetPosition: 0.5
   m_SuspensionDistance: 0.3
@@ -2111,6 +2229,12 @@ WheelCollider:
 --- !u!4 &1117361097 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 354437843}
+  m_PrefabAsset: {fileID: 0}
+--- !u!33 &1117361099 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 3684326145262485850, guid: a956695827d31a14c9aff47db60ad88e,
     type: 3}
   m_PrefabInstance: {fileID: 354437843}
   m_PrefabAsset: {fileID: 0}
@@ -2387,7 +2511,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 0.3
   m_SuspensionSpring:
-    spring: 100
+    spring: 20000
     damper: 0.9
     targetPosition: 0.5
   m_SuspensionDistance: 0.3
@@ -2641,6 +2765,12 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -5495902117074765545, guid: 984e480d07c413a4cb2b9fc0a0129042, type: 3}
+--- !u!33 &1795804844 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 3684326145262485850, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 350541939}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1838190063
 GameObject:
   m_ObjectHideFlags: 0
@@ -2927,6 +3057,12 @@ Transform:
 --- !u!4 &1890288123 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,
+    type: 3}
+  m_PrefabInstance: {fileID: 1021888746}
+  m_PrefabAsset: {fileID: 0}
+--- !u!33 &1890288125 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 3684326145262485850, guid: a956695827d31a14c9aff47db60ad88e,
     type: 3}
   m_PrefabInstance: {fileID: 1021888746}
   m_PrefabAsset: {fileID: 0}

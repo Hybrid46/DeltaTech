@@ -279,8 +279,10 @@ public class Planet : Singleton<Planet>
 
         foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
         {
+            chunk.Value.SetMeshTo(Chunk.MeshDetail.Detailed);
             SpawnPrefabs(chunk.Value, placedBounds, spawnLayer);
             //StaticBatchingUtility.Combine(chunk.Value.gameObject);
+            chunk.Value.SetMeshTo(Chunk.MeshDetail.Simple);
             chunk.Value.gameObject.SetActive(false);
         }
 
@@ -330,9 +332,8 @@ public class Planet : Singleton<Planet>
 
         //This is only for faster map generation! -> less GC & inaccurate prefab placement
         currentChunk.SetMeshTo(Chunk.MeshDetail.Simple);
-        //currentChunk.SetMeshTo(Chunk.MeshDetail.Detailed);
-        currentChunk.SimpleMesh.UploadMeshData(true);
-        currentChunk.DetailMesh.UploadMeshData(true);
+        currentChunk.SimpleMesh.UploadMeshData(false);
+        currentChunk.DetailMesh.UploadMeshData(false);
     }
 
     [BurstCompile]

@@ -607,7 +607,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hp: 10
   mass: 1
-  buoyancy: 0
   m_WheelTransform: {fileID: 1493312878}
   m_WheelMeshFilter: {fileID: 1795804844}
   isMotor: 1
@@ -615,46 +614,13 @@ MonoBehaviour:
   hasBreak: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
-  powerCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.34434128
-      inSlope: 2.181914
-      outSlope: 2.181914
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.2430468
-      value: 0.8746485
-      inSlope: 1.0927465
-      outSlope: 1.0927465
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0.8773575
-      inSlope: 0.0035787835
-      outSlope: 0.0035787835
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   topSpeed: 100
-  motorTorque: 400
-  breakRestTorque: 10
-  breakTorque: 200
+  kilowatts: 5
+  breakRestTorque: 0.5
+  breakTorque: 5
   wheelRadius: 0
   wheelWidth: 0
-  motor: 0
+  acceleration: 0
   steering: 0
   breaking: 0
   forwardSpeed: 0
@@ -673,7 +639,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 0.3
   m_SuspensionSpring:
-    spring: 20000
+    spring: 200
     damper: 0.9
     targetPosition: 0.5
   m_SuspensionDistance: 0.3
@@ -818,7 +784,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hp: 10
   mass: 1
-  buoyancy: 0
   m_WheelTransform: {fileID: 1117361097}
   m_WheelMeshFilter: {fileID: 1117361099}
   isMotor: 0
@@ -826,46 +791,13 @@ MonoBehaviour:
   hasBreak: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
-  powerCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.34434128
-      inSlope: 2.181914
-      outSlope: 2.181914
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.2430468
-      value: 0.8746485
-      inSlope: 1.0927465
-      outSlope: 1.0927465
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0.8773575
-      inSlope: 0.0035787835
-      outSlope: 0.0035787835
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   topSpeed: 100
-  motorTorque: 400
-  breakRestTorque: 10
-  breakTorque: 200
+  kilowatts: 5
+  breakRestTorque: 0.5
+  breakTorque: 5
   wheelRadius: 0
   wheelWidth: 0
-  motor: 0
+  acceleration: 0
   steering: 0
   breaking: 0
   forwardSpeed: 0
@@ -884,7 +816,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 0.3
   m_SuspensionSpring:
-    spring: 20000
+    spring: 200
     damper: 0.9
     targetPosition: 0.5
   m_SuspensionDistance: 0.3
@@ -960,7 +892,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 386857486}
   serializedVersion: 4
-  m_Mass: 1500
+  m_Mass: 2500
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -988,16 +920,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 386857486}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 951b30af0650b9d4cbe577a69177fbb8, type: 3}
+  m_Script: {fileID: 11500000, guid: 47778ebebdd4e0a4d991f015ae8785f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  motorForce: 100
-  maxSteerAngle: 30
-  wheelSuspensions:
-  - {fileID: 527020043}
-  - {fileID: 350541942}
-  - {fileID: 354437846}
-  - {fileID: 1021888749}
+  verticalInput: 0
+  horizontalInput: 0
+  control: {fileID: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1238,6 +1166,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
+      propertyPath: hp
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
       propertyPath: hasBreak
       value: 1
       objectReference: {fileID: 0}
@@ -1248,13 +1181,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
+      propertyPath: kilowatts
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
+        type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
       propertyPath: breakTorque
-      value: 200
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
@@ -1269,7 +1207,7 @@ PrefabInstance:
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
       propertyPath: breakRestTorque
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
         type: 3}
@@ -1411,18 +1349,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 527020040}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &527020043 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2296164619654034942, guid: a956695827d31a14c9aff47db60ad88e,
-    type: 3}
-  m_PrefabInstance: {fileID: 527020040}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1604225206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c24551a60e4f83b4a97b6e7ec5c884f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &630818604
 GameObject:
   m_ObjectHideFlags: 0
@@ -2132,7 +2058,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hp: 10
   mass: 1
-  buoyancy: 0
   m_WheelTransform: {fileID: 1890288123}
   m_WheelMeshFilter: {fileID: 1890288125}
   isMotor: 0
@@ -2140,46 +2065,13 @@ MonoBehaviour:
   hasBreak: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
-  powerCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.34434128
-      inSlope: 2.181914
-      outSlope: 2.181914
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.2430468
-      value: 0.8746485
-      inSlope: 1.0927465
-      outSlope: 1.0927465
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0.8773575
-      inSlope: 0.0035787835
-      outSlope: 0.0035787835
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   topSpeed: 100
-  motorTorque: 400
-  breakRestTorque: 10
-  breakTorque: 200
+  kilowatts: 5
+  breakRestTorque: 0.5
+  breakTorque: 5
   wheelRadius: 0
   wheelWidth: 0
-  motor: 0
+  acceleration: 0
   steering: 0
   breaking: 0
   forwardSpeed: 0
@@ -2198,7 +2090,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 0.3
   m_SuspensionSpring:
-    spring: 20000
+    spring: 200
     damper: 0.9
     targetPosition: 0.5
   m_SuspensionDistance: 0.3
@@ -2511,7 +2403,7 @@ WheelCollider:
   m_Center: {x: 0, y: 0, z: 0}
   m_Radius: 0.3
   m_SuspensionSpring:
-    spring: 20000
+    spring: 200
     damper: 0.9
     targetPosition: 0.5
   m_SuspensionDistance: 0.3

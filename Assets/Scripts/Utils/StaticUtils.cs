@@ -236,4 +236,7 @@ public static class StaticUtils
     }
 
     public static float CalcCylinderVolume(float height, float radius) => height * Mathf.PI * radius * radius;
+
+    //Watts transferred to kilowatts, rpm to speed, preserveing the original equation of torque -> https://www.engineeringtoolbox.com/electrical-motors-hp-torque-rpm-d_1503.html
+    public static float GetElectricMotorTorque(float watts, float speed) => watts * 95.49f / speed; 
 }

@@ -99,10 +99,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkWorldPos: {x: 0, y: 0, z: 0}
   saved: 0
-  myTransform: {fileID: 0}
-  myMeshFilter: {fileID: 0}
-  myMeshCollider: {fileID: 0}
-  myRenderer: {fileID: 0}
+  myTransform: {fileID: 8502694550177579779}
+  myMeshFilter: {fileID: 6787527021076031022}
+  myMeshCollider: {fileID: -4960942888369226662}
+  myRenderer: {fileID: 3094047000549435676}
   SimpleMesh: {fileID: 0}
   DetailMesh: {fileID: 0}
   meshDetail: 0

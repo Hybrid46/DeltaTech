@@ -1,39 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Module : MonoBehaviour
 {
-    private protected Rigidbody vehicleRigidbody;
+    private protected Rigidbody m_VehicleRigidbody;
     private protected Transform m_Transform;
     private protected Vehicle m_Vehicle;
 
-    public enum ModuleType { General, Drive, Turret, Ballast, Effector }
     public float hp;
     public float mass;
 
-    [Range(-1.0f, 1.0f)]
-    public float buoyancy;//should be multiplied by mass?
-
-    void Start()
+    private protected virtual void Start()
     {
-        vehicleRigidbody = transform.root.GetComponent<Rigidbody>();
+        m_VehicleRigidbody = transform.root.GetComponent<Rigidbody>();
+        m_Vehicle = transform.root.GetComponent<Vehicle>();
         m_Transform = transform;
     }
 
-    void Update()
+    private protected virtual void Update()
     {        
         CheckHP();
     }
 
-    private void FixedUpdate()
+    private protected virtual void OnCollisionEnter(Collision collision)
     {
-        ApplyForces();
-    }
-
-    private protected void OnCollisionEnter(Collision collision)
-    {
-        hp -= collision.relativeVelocity.magnitude * mass;
+        hp -= collision.relativeVelocity.magnitude;
         CheckHP();
     }
 
@@ -44,10 +34,5 @@ public class Module : MonoBehaviour
             m_Vehicle.RemoveModule(this);
             Destroy(gameObject);
         }
-    }
-
-    private protected void ApplyForces()
-    {
-
     }
 }

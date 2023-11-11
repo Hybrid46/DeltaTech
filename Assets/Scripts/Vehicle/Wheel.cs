@@ -9,18 +9,18 @@ public class CustomWheelSuspension : Module
     public Transform m_WheelTransform;
     public MeshFilter m_WheelMeshFilter;
 
-    public bool isMotor;
+    [Header("Steering")]
     public bool isSteering;
-    public bool hasBreak;
-
-    //steering
     public float steeringSpeed = 10.0f;
     [Range(0.0f, 90.0f)] public float maxSteeringAngle = 25.0f;
 
-    //acceleration
+    [Header("Motor")]
+    public bool isMotor;
     public float topSpeed = 20.0f;
     public float kilowatts = 50.0f;
 
+    [Header("Break")]
+    public bool hasBreak;
     public float breakRestTorque = 10.0f;
     public float breakTorque = 50.0f;
 

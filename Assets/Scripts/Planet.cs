@@ -113,6 +113,7 @@ public class Planet : Singleton<Planet>
 
     public GameObject worldBoundsCube;
     private Bounds worldBounds = new Bounds();
+    public bool meshCombining = false;
 
     private const float idwStepSize = 1.0f;
     private const float idwRange = 5.0f;
@@ -289,15 +290,18 @@ public class Planet : Singleton<Planet>
         Debug.Log("Prefabs generated in: " + (DateTime.Now - exectime).Milliseconds + " ms");
 
         //Mesh combining
-        exectime = DateTime.Now;
-
-        foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+        if (meshCombining)
         {
-            chunk.Value.GetChildrenMeshFilters();
-            chunk.Value.CombineMeshes();
-        }
+            exectime = DateTime.Now;
 
-        Debug.Log("Meshes combined in: " + (DateTime.Now - exectime).Milliseconds + " ms");
+            foreach (KeyValuePair<Vector3, Chunk> chunk in ChunkCells)
+            {
+                chunk.Value.GetChildrenMeshFilters();
+                chunk.Value.CombineMeshes();
+            }
+
+            Debug.Log("Meshes combined in: " + (DateTime.Now - exectime).Milliseconds + " ms");
+        }
 
         OnChunksGenerated += ChunksGenerated;
         OnChunksGenerated.Invoke();

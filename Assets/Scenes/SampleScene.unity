@@ -609,13 +609,13 @@ MonoBehaviour:
   mass: 1
   m_WheelTransform: {fileID: 1493312878}
   m_WheelMeshFilter: {fileID: 1795804844}
-  isMotor: 1
   isSteering: 0
-  hasBreak: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
+  isMotor: 1
   topSpeed: 100
   kilowatts: 5
+  hasBreak: 1
   breakRestTorque: 0.5
   breakTorque: 5
   wheelRadius: 0
@@ -786,13 +786,13 @@ MonoBehaviour:
   mass: 1
   m_WheelTransform: {fileID: 1117361097}
   m_WheelMeshFilter: {fileID: 1117361099}
-  isMotor: 0
   isSteering: 1
-  hasBreak: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
+  isMotor: 0
   topSpeed: 100
   kilowatts: 5
+  hasBreak: 1
   breakRestTorque: 0.5
   breakTorque: 5
   wheelRadius: 0
@@ -2060,13 +2060,13 @@ MonoBehaviour:
   mass: 1
   m_WheelTransform: {fileID: 1890288123}
   m_WheelMeshFilter: {fileID: 1890288125}
-  isMotor: 0
   isSteering: 1
-  hasBreak: 1
   steeringSpeed: 10
   maxSteeringAngle: 25
+  isMotor: 0
   topSpeed: 100
   kilowatts: 5
+  hasBreak: 1
   breakRestTorque: 0.5
   breakTorque: 5
   wheelRadius: 0
@@ -2927,6 +2927,7 @@ MonoBehaviour:
     m_NumColorKeys: 4
     m_NumAlphaKeys: 2
   worldBoundsCube: {fileID: 1683824155}
+  meshCombining: 0
   baseMesh: {fileID: -462981019419857548, guid: d8be9e3d209b7b741ba0431967a165cb,
     type: 3}
   simpleMesh: {fileID: -462981019419857548, guid: f616ac86c4cca574e8cfb45fba523566,

@@ -1,2 +1,2 @@
 # DeltaTech
-Multiplayer game similar to TerraTech.
+Similar Game to TerraTech.

@@ -1,2 +1,2 @@
 # DeltaTech
-Car phisycs game.
+Car physics game.

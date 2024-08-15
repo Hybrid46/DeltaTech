@@ -5,6 +5,10 @@ Car physics game.
 - Blender like cavity and curvature post process shader
 - Car physics (wheel and hover)
 - Chunk based map generation and LOD system (Similar to Unity water system)
+- Inverse distance weighted smoothing between biomes (hill-plains)
+
+Youtube: https://youtu.be/kjqLa8xhJUY
+
 ![Képernyőkép 2023-07-08 171719](https://github.com/user-attachments/assets/34f2d557-fdb3-40e0-a62f-230df9cf01b6)
 ![Képernyőkép 2023-10-10 195949](https://github.com/user-attachments/assets/0b6c888f-3bfb-49ed-82fc-1a6a6d6dfc8b)
 ![Képernyőkép 2023-08-16 211501](https://github.com/user-attachments/assets/d81452cb-a7fe-4274-beba-220837f148c2)

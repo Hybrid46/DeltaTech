@@ -7,7 +7,7 @@ Car physics game.
 - Chunk based map generation and LOD system (Similar to Unity water system)
 - Inverse distance weighted smoothing between biomes (hill-plains)
 
-Youtube: https://youtu.be/kjqLa8xhJUY
+Youtube: https://youtu.be/kjqLa8xhJUY and https://youtu.be/gLhbI-TuYQ8
 
 ![Képernyőkép 2023-07-08 171719](https://github.com/user-attachments/assets/34f2d557-fdb3-40e0-a62f-230df9cf01b6)
 ![Képernyőkép 2023-10-10 195949](https://github.com/user-attachments/assets/0b6c888f-3bfb-49ed-82fc-1a6a6d6dfc8b)

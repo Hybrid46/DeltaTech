@@ -16,7 +16,7 @@ public class Propeller : Module
     private void AccelerationForce(float accelerationInput)
     {
         Vector3 accelerationDir = m_Transform.forward;
-        float carSpeed = Vector3.Dot(m_Transform.forward, m_VehicleRigidbody.velocity);
+        float carSpeed = Vector3.Dot(m_Transform.forward, m_VehicleRigidbody.linearVelocity);
         float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / topSpeed);
         float availableTorque = powerCurve.Evaluate(normalizedSpeed) * accelerationInput * motorTorque;
 

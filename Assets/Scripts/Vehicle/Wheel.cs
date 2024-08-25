@@ -71,8 +71,8 @@ public class CustomWheelSuspension : Module
         if (hasBreak) Break();
         UpdateWheel();
 
-        speed = m_VehicleRigidbody.velocity.magnitude;
-        forwardSpeed = Vector3.Project(m_VehicleRigidbody.velocity, m_VehicleRigidbody.transform.forward).magnitude;
+        speed = m_VehicleRigidbody.linearVelocity.magnitude;
+        forwardSpeed = Vector3.Project(m_VehicleRigidbody.linearVelocity, m_VehicleRigidbody.transform.forward).magnitude;
     }
 
     private void UpdateWheel()

@@ -46,7 +46,7 @@ public class Vehicle : MonoBehaviour
             if (Physics.Raycast(vehicleRigidbody.gameObject.transform.position + Vector3.up * 100.0f, -Vector3.up, out hit))
             {
                 vehicleRigidbody.gameObject.transform.rotation = Quaternion.identity;
-                vehicleRigidbody.gameObject.transform.position = hit.point + hit.normal * 10.0f;
+                vehicleRigidbody.gameObject.transform.position = hit.point + hit.normal * 5.0f;
             }
         }
     }

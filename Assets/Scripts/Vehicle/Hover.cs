@@ -9,9 +9,9 @@ public class HoverModule : Module
 
     public Transform movableChildTransform;
     //suspension
-    public float suspensionDampening = 0.1f;
-    public float suspensionSpringStrength = 10.0f;
-    public float suspensionRestDist = 0.5f;
+    [Range(0f, 0.999f)] public float suspensionDampening = 0.1f;
+    public float springStrength = 10.0f;
+    public float springRestDist = 0.5f;
 
     public float rotationSpeed = 100.0f;
     public float maxVerticalAngle = 45.0f;
@@ -33,8 +33,9 @@ public class HoverModule : Module
     private Vector3 debugAccelerationForce;
 #endif
 
-    private void Start()
+    private protected override void Start()
     {
+        base.Start();
         vehicleRigidbody = transform.root.GetComponent<Rigidbody>();
     }
 
@@ -44,10 +45,10 @@ public class HoverModule : Module
         steering = Input.GetAxis("Horizontal");
         breaking = Input.GetKey(KeyCode.Space);
 
-        Spin(steering, acceleration);
+        if (isSteering) Spin(steering, acceleration);
         RaycastHit hit;
 
-        if (Physics.Raycast(movableChildTransform.position, -movableChildTransform.up, out hit, suspensionRestDist))
+        if (Physics.Raycast(movableChildTransform.position, -movableChildTransform.up, out hit, springRestDist))
         {
             GetSuspensionForce(hit);
         }
@@ -81,16 +82,16 @@ public class HoverModule : Module
         Vector3 springDir = movableChildTransform.up;
 
         // World-space velocity of this tire
-        Vector3 tireWorldVel = vehicleRigidbody.GetPointVelocity(movableChildTransform.position);
+        Vector3 worldVelocity = vehicleRigidbody.GetPointVelocity(movableChildTransform.position);
 
         // Calculate offset from the raycast (displacement from rest position)
-        float offset = suspensionRestDist - hitInfo.distance;
+        float offset = springRestDist - hitInfo.distance;
 
         // Calculate velocity along the spring direction
-        float springVelocity = Vector3.Dot(springDir, tireWorldVel);
+        float springVelocity = Vector3.Dot(springDir, worldVelocity);
 
         // Calculate spring force using Hooke's Law (F = -kx)
-        float springForce = offset * suspensionSpringStrength;
+        float springForce = offset * springStrength;
 
         // Calculate damping force (F = -bv)
         float dampingForce = springVelocity * suspensionDampening;

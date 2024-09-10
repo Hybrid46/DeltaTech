@@ -27,6 +27,7 @@ public class HoverModule : Module
     public bool isMotor;
     public bool isSteering;
 
+
 #if DEBUG
     private Vector3 debugSuspensionForce;
     private Vector3 debugSteeringForce;
@@ -42,15 +43,15 @@ public class HoverModule : Module
     private void FixedUpdate()
     {
         acceleration = Input.GetAxis("Vertical");
-        steering = Input.GetAxis("Horizontal");
+        steering = isSteering ? Input.GetAxis("Horizontal") : 0f;
         breaking = Input.GetKey(KeyCode.Space);
 
-        if (isSteering) Spin(steering, acceleration);
+        Spin(steering, acceleration);
         RaycastHit hit;
 
         if (Physics.Raycast(movableChildTransform.position, -movableChildTransform.up, out hit, springRestDist))
         {
-            GetSuspensionForce(hit);
+            if (isMotor) AddSuspensionForce(hit);
         }
     }
 
@@ -76,7 +77,7 @@ public class HoverModule : Module
         movableChildTransform.localRotation = Quaternion.Euler(currentVerticalAngle, 0, currentHorizontalAngle);
     }
 
-    private void GetSuspensionForce(RaycastHit hitInfo)
+    private void AddSuspensionForce(RaycastHit hitInfo)
     {
         // World-space direction of the spring force
         Vector3 springDir = movableChildTransform.up;

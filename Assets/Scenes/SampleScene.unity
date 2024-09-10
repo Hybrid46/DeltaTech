@@ -1626,8 +1626,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 630818604}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.2474478, y: 0.31845358, z: -0.09162644, w: -0.9104732}
-  m_LocalPosition: {x: 6.1025043, y: 4.209776, z: -7.9078083}
+  m_LocalRotation: {x: 0.15685816, y: -0.32315055, z: 0.054441042, w: 0.93166804}
+  m_LocalPosition: {x: 75.16132, y: 50.255135, z: 18.495167}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2973,7 +2973,7 @@ MonoBehaviour:
   acceleration: 0
   steering: 0
   breaking: 1
-  isMotor: 0
+  isMotor: 1
   isSteering: 1
 --- !u!1 &1334308064
 GameObject:
@@ -3457,7 +3457,7 @@ MonoBehaviour:
   acceleration: 0
   steering: 0
   breaking: 1
-  isMotor: 0
+  isMotor: 1
   isSteering: 1
 --- !u!1 &1604225206 stripped
 GameObject:

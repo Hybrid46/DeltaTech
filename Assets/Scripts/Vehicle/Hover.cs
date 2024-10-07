@@ -5,8 +5,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class HoverModule : Module
 {
-    private Rigidbody vehicleRigidbody;
-
     public Transform movableChildTransform;
     //suspension
     [Range(0f, 0.999f)] public float suspensionDampening = 0.1f;
@@ -20,13 +18,11 @@ public class HoverModule : Module
     [SerializeField] private float currentVerticalAngle = 0.0f;
     [SerializeField] private float currentHorizontalAngle = 0.0f;
 
-    [SerializeField] private float acceleration;
-    [SerializeField] private float steering;
-    [SerializeField] private bool breaking;
+    [SerializeField] public float acceleration;
+    [SerializeField] public float steering;
 
     public bool isMotor;
     public bool isSteering;
-
 
 #if DEBUG
     private Vector3 debugSuspensionForce;
@@ -34,17 +30,15 @@ public class HoverModule : Module
     private Vector3 debugAccelerationForce;
 #endif
 
-    private protected override void Start()
+    public override void Start()
     {
         base.Start();
-        vehicleRigidbody = transform.root.GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate()
     {
-        acceleration = Input.GetAxis("Vertical");
-        steering = isSteering ? Input.GetAxis("Horizontal") : 0f;
-        breaking = Input.GetKey(KeyCode.Space);
+        acceleration = m_Vehicle.isBreaking ? acceleration : m_Vehicle.verticalInput;
+        steering = isSteering ? m_Vehicle.horizontalInput : 0f;
 
         Spin(steering, acceleration);
         RaycastHit hit;
@@ -57,7 +51,7 @@ public class HoverModule : Module
 
     private void Spin(float horizontalInput, float verticalInput)
     {
-        if (breaking)
+        if (acceleration == 0f && steering == 0f)
         {
             currentHorizontalAngle = Mathf.Lerp(currentHorizontalAngle, 0f, rotationSpeed * Time.fixedDeltaTime);
             currentVerticalAngle = Mathf.Lerp(currentVerticalAngle, 0f, rotationSpeed * Time.fixedDeltaTime);
@@ -83,7 +77,7 @@ public class HoverModule : Module
         Vector3 springDir = movableChildTransform.up;
 
         // World-space velocity of this tire
-        Vector3 worldVelocity = vehicleRigidbody.GetPointVelocity(movableChildTransform.position);
+        Vector3 worldVelocity = m_VehicleRigidbody.GetPointVelocity(movableChildTransform.position);
 
         // Calculate offset from the raycast (displacement from rest position)
         float offset = springRestDist - hitInfo.distance;
@@ -101,7 +95,7 @@ public class HoverModule : Module
         float totalForce = springForce - dampingForce;
 
         // Apply the force to the rigidbody
-        vehicleRigidbody.AddForceAtPosition(springDir * totalForce, movableChildTransform.position);
+        m_VehicleRigidbody.AddForceAtPosition(springDir * totalForce, movableChildTransform.position);
 
         // For debugging purposes
         debugSuspensionForce = springDir * totalForce;

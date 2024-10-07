@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4889048691240520827}
   - component: {fileID: 5694605817933028371}
+  - component: {fileID: 5435149345963710576}
   m_Layer: 0
   m_Name: Hover1
   m_TagString: Untagged
@@ -61,6 +62,27 @@ MonoBehaviour:
   breaking: 1
   isMotor: 1
   isSteering: 1
+--- !u!135 &5435149345963710576
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1278888089008882902}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8722328580482563567
 GameObject:
   m_ObjectHideFlags: 0
@@ -72,7 +94,6 @@ GameObject:
   - component: {fileID: 8681462645628612255}
   - component: {fileID: 384120613723416553}
   - component: {fileID: 1528180608046929093}
-  - component: {fileID: 4030418646111410588}
   m_Layer: 0
   m_Name: hoverChild
   m_TagString: Untagged
@@ -148,24 +169,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &4030418646111410588
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8722328580482563567}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}

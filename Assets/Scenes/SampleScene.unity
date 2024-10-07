@@ -1008,7 +1008,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   verticalInput: 0
   horizontalInput: 0
-  control: {fileID: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1203,6 +1202,80 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4889048691240520827, guid: e9317553328554f419e1514b2e7cbfed,
     type: 3}
   m_PrefabInstance: {fileID: 457304288}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &482099345
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1382385108}
+    m_Modifications:
+    - target: {fileID: 2136906843606058044, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_Name
+      value: Gyroscope
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 903ed5e001e17d841b0a3d2c48cfa0b7, type: 3}
+--- !u!4 &482099346 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8278843482181285660, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+    type: 3}
+  m_PrefabInstance: {fileID: 482099345}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &508363601
 GameObject:
@@ -2861,6 +2934,7 @@ GameObject:
   - component: {fileID: 1382385108}
   - component: {fileID: 1382385107}
   - component: {fileID: 1382385106}
+  - component: {fileID: 1382385109}
   m_Layer: 0
   m_Name: Hover
   m_TagString: Untagged
@@ -2882,7 +2956,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   verticalInput: 0
   horizontalInput: 0
-  control: {fileID: 0}
 --- !u!54 &1382385107
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2930,8 +3003,35 @@ Transform:
   - {fileID: 457304289}
   - {fileID: 890076431}
   - {fileID: 121266265}
+  - {fileID: 482099346}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1382385109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1382385105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c4ffc3e9aa2d24eb800f661dd10594, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 10
+  mass: 1
+  controller:
+    proportionalGain: 1
+    integralGain: 1
+    derivativeGain: 1
+    outputMin: -1
+    outputMax: 1
+    integralSaturation: 1
+    derivativeMeasurementMode: 0
+  forwardAngle: 0
+  upAngle: 0
+  rightAngle: 0
+  power: 10
 --- !u!4 &1493312878 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,

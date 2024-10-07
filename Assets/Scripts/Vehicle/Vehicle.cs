@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,8 +9,10 @@ public class Vehicle : MonoBehaviour
     public float verticalInput;
     public float horizontalInput;
 
-    public Module control;
+    public bool isBreaking;
+
     private HashSet<Module> modules = new HashSet<Module>();
+    private Dictionary<Type, List<Module>> moduleTypes = new Dictionary<Type, List<Module>>();
 
     private float vehicleMass;
     private float vehicleHp;
@@ -32,6 +35,7 @@ public class Vehicle : MonoBehaviour
     {
         if (modules.Count == 0 || vehicleHp <= 0) SelfDestruct();
 
+        isBreaking = Input.GetKey(KeyCode.Space);
         verticalInput = Input.GetAxis("Vertical");
         horizontalInput = Input.GetAxis("Horizontal");
     }
@@ -63,9 +67,26 @@ public class Vehicle : MonoBehaviour
             if (currentModule != null)
             {
                 modules.Add(currentModule);
+
+                Type type = currentModule.GetType();
+                if (!moduleTypes.ContainsKey(type))
+                {
+                    moduleTypes.Add(type, new List<Module>());
+                    moduleTypes[type].Add(currentModule);
+                }
+                else
+                {
+                    moduleTypes[type].Add(currentModule);
+                }
+
                 currentModule = null;
             }
         }
+    }
+
+    public List<Module> GetAllModulesOfType(Type type)
+    {
+        return moduleTypes[type];
     }
 
     public void RemoveModule(Module module)

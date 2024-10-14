@@ -38,7 +38,7 @@ public class HoverModule : Module
     private void FixedUpdate()
     {
         acceleration = m_Vehicle.isBreaking ? acceleration : m_Vehicle.verticalInput;
-        steering = isSteering ? m_Vehicle.horizontalInput : 0f;
+        steering = isSteering ? m_Vehicle.isBreaking ? steering : m_Vehicle.horizontalInput : 0f;
 
         Spin(steering, acceleration);
         RaycastHit hit;

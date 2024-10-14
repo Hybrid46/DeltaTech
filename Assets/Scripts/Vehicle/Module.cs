@@ -27,6 +27,11 @@ public class Module : MonoBehaviour
         CheckHP();
     }
 
+    public virtual void Destruct()
+    {
+        Destroy(gameObject);
+    }
+
     private protected void CheckHP()
     {
         if (hp <= 0.0f)

@@ -62,9 +62,7 @@ public class Vehicle : MonoBehaviour
 
         foreach (Transform child in transform)
         {
-            currentModule = child.gameObject.GetComponent<Module>();
-
-            if (currentModule != null)
+            if (child.gameObject.TryGetComponent(out currentModule))
             {
                 modules.Add(currentModule);
 
@@ -93,16 +91,19 @@ public class Vehicle : MonoBehaviour
     {
         ModifyStats(-module.mass, -module.hp);
         modules.Remove(module);
+        moduleTypes[module.GetType()].Remove(module);
     }
 
     public void AddModule(Module module)
     {
         ModifyStats(module.mass, module.hp);
         modules.Add(module);
+        moduleTypes[module.GetType()].Add(module);
     }
 
     private void SelfDestruct()
     {
+        foreach (Module module in modules) module.Destruct();
         Destroy(gameObject);
     }
 

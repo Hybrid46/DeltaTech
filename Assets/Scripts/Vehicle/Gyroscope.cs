@@ -4,9 +4,6 @@ using UnityEngine;
 public class Gyroscope : Module
 {
     [SerializeField] private PIDController controller = new PIDController(1f, 1f, 1f, 1f, true, -1f, 1f);
-    public float forwardAngle;
-    public float upAngle;
-    public float rightAngle;
     public float power = 10;
 
     public override void Start()
@@ -26,28 +23,33 @@ public class Gyroscope : Module
 
     public void FixedUpdate()
     {
-        Vector3 targetPosition = m_VehicleRigidbody.position + Vector3.forward;
-        targetPosition.y = m_VehicleRigidbody.position.y;    //ignore difference in Y
-        Align(targetPosition);
+        Align();
     }
 
-    private void Align(Vector3 targetPosition)
+    private void Align()
     {
-        Vector3 targetDir = (targetPosition - m_VehicleRigidbody.position).normalized;
-        Vector3 forwardDir = m_VehicleRigidbody.rotation * Vector3.forward;
+        Vector3 targetDir = m_VehicleRigidbody.rotation * transform.forward;
+        Vector3 forwardDir = m_VehicleRigidbody.rotation * transform.forward;
 
-        float currentAngle = Vector3.SignedAngle(Vector3.forward, forwardDir, Vector3.up);
-        float targetAngle = Vector3.SignedAngle(Vector3.forward, targetDir, Vector3.up);
+        bool turnRight = m_Vehicle.rotationInput < 0f;
+        bool turnLeft = m_Vehicle.rotationInput > 0f;
+
+        if (turnRight) targetDir = m_VehicleRigidbody.rotation * transform.right;
+        if (turnLeft) targetDir = m_VehicleRigidbody.rotation * -transform.right;
+
+        float currentAngle = Vector3.SignedAngle(transform.forward, forwardDir, Vector3.up);
+        float targetAngle = Vector3.SignedAngle(transform.forward, targetDir, Vector3.up);
 
         float input = controller.Update(Time.fixedDeltaTime, currentAngle, targetAngle);
-        m_VehicleRigidbody.AddTorque(new Vector3(0, input * power, 0));
+        m_VehicleRigidbody.AddTorque(0f, input * power, 0f, ForceMode.Force);
     }
 
     private void OnDrawGizmos()
     {
         if (m_VehicleRigidbody)
         {
-            GizmosExtend.DrawArrow(transform.position, m_VehicleRigidbody.rotation * Vector3.forward, Color.yellow * 0.5f);
+            GizmosExtend.DrawArrow(transform.position, m_VehicleRigidbody.rotation * transform.forward, Color.green * 0.5f);
+            GizmosExtend.DrawArrow(transform.position, m_VehicleRigidbody.rotation * transform.forward, Color.yellow * 0.5f);
         }
     }
 }

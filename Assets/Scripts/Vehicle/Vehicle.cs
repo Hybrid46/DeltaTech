@@ -8,6 +8,7 @@ public class Vehicle : MonoBehaviour
 
     public float verticalInput;
     public float horizontalInput;
+    public float rotationInput;
 
     public bool isBreaking;
 
@@ -38,6 +39,8 @@ public class Vehicle : MonoBehaviour
         isBreaking = Input.GetKey(KeyCode.Space);
         verticalInput = Input.GetAxis("Vertical");
         horizontalInput = Input.GetAxis("Horizontal");
+
+        rotationInput = Input.GetKey(KeyCode.Q) ? -1f : Input.GetKey(KeyCode.E) ? 1f : 0f;
     }
 
     private void FixedUpdate()
@@ -47,10 +50,10 @@ public class Vehicle : MonoBehaviour
         {
             RaycastHit hit;
 
-            if (Physics.Raycast(vehicleRigidbody.gameObject.transform.position + Vector3.up * 100.0f, -Vector3.up, out hit))
+            if (Physics.Raycast(vehicleRigidbody.gameObject.transform.position + Vector3.up * 1000.0f, -Vector3.up, out hit))
             {
                 vehicleRigidbody.gameObject.transform.rotation = Quaternion.identity;
-                vehicleRigidbody.gameObject.transform.position = hit.point + hit.normal * 5.0f;
+                vehicleRigidbody.gameObject.transform.position = hit.point + Vector3.up * 5.0f;
             }
         }
     }

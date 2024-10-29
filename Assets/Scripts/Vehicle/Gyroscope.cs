@@ -83,6 +83,8 @@ public class Gyroscope : Module
         m_VehicleRigidbody.AddTorque(0f, input * power, 0f, ForceMode.Force);
     }
 
+    public PIDController[] GetControllers() => controllers;
+
     private void OnDrawGizmos()
     {
         if (m_VehicleRigidbody)

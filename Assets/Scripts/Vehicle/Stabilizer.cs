@@ -57,6 +57,8 @@ public class Stabilizer : Module
         }
     }
 
+    public PIDController[] GetControllers() => controllers;
+
     private void OnDrawGizmos()
     {
         if (m_VehicleRigidbody)

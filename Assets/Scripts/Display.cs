@@ -3,9 +3,11 @@ using UnityEngine;
 public class Display : MonoBehaviour
 {
     public HoverModule[] hoverModules;
+    public Gyroscope gyroModule;
 
     void OnGUI()
     {
+        //Hover
         GUILayout.Label("Suspension dampening " + hoverModules[0].suspensionDampening);
         hoverModules[0].suspensionDampening = GUILayout.HorizontalSlider(hoverModules[0].suspensionDampening, 0.0f, 1.0f);
         for (int i = 1; i < hoverModules.Length; i++) hoverModules[i].suspensionDampening = hoverModules[0].suspensionDampening;
@@ -25,5 +27,11 @@ public class Display : MonoBehaviour
         GUILayout.Label("Max Horizontal Angle " + hoverModules[0].maxHorizontalAngle);
         hoverModules[0].maxHorizontalAngle = GUILayout.HorizontalSlider(hoverModules[0].maxHorizontalAngle, 5.0f, 50.0f);
         for (int i = 1; i < hoverModules.Length; i++) hoverModules[i].maxHorizontalAngle = hoverModules[0].maxHorizontalAngle;
+        //---------
+
+        //Gyro
+        GUILayout.Label("Gyro power " + gyroModule.power);
+        gyroModule.power = GUILayout.HorizontalSlider(gyroModule.power, 10.0f, 200.0f);
+        //--------
     }
 }

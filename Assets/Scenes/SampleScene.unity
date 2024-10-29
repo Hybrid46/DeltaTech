@@ -1256,6 +1256,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4000270116217830375, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
         type: 3}
+      propertyPath: mass
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000270116217830375, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+        type: 3}
       propertyPath: power
       value: 20
       objectReference: {fileID: 0}
@@ -1845,6 +1850,18 @@ MeshFilter:
     type: 3}
   m_PrefabInstance: {fileID: 527020040}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &716272327 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4000270116217830375, guid: 903ed5e001e17d841b0a3d2c48cfa0b7,
+    type: 3}
+  m_PrefabInstance: {fileID: 482099345}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92293ba4e86c0b646bb619379199e94f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &718455389
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3592,7 +3609,7 @@ MonoBehaviour:
       scale: 16
       amplitude: 0.1
       minHeight: 0
-      maxHeight: 2
+      maxHeight: 4
     prefabBiomeSettings:
     - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
         type: 3}
@@ -3742,6 +3759,7 @@ MonoBehaviour:
   - {fileID: 737677384}
   - {fileID: 890076433}
   - {fileID: 1139654011}
+  gyroModule: {fileID: 716272327}
 --- !u!4 &1890288123 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4574645769242545556, guid: a956695827d31a14c9aff47db60ad88e,

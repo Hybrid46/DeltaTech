@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,9 +8,12 @@ public class Vehicle : MonoBehaviour
 
     public float verticalInput;
     public float horizontalInput;
+    public float rotationInput;
 
-    public Module control;
+    public bool isBreaking;
+
     private HashSet<Module> modules = new HashSet<Module>();
+    private Dictionary<Type, List<Module>> moduleTypes = new Dictionary<Type, List<Module>>();
 
     private float vehicleMass;
     private float vehicleHp;
@@ -32,8 +36,11 @@ public class Vehicle : MonoBehaviour
     {
         if (modules.Count == 0 || vehicleHp <= 0) SelfDestruct();
 
+        isBreaking = Input.GetKey(KeyCode.Space);
         verticalInput = Input.GetAxis("Vertical");
         horizontalInput = Input.GetAxis("Horizontal");
+
+        rotationInput = Input.GetKey(KeyCode.Q) ? -1f : Input.GetKey(KeyCode.E) ? 1f : 0f;
     }
 
     private void FixedUpdate()
@@ -43,10 +50,10 @@ public class Vehicle : MonoBehaviour
         {
             RaycastHit hit;
 
-            if (Physics.Raycast(vehicleRigidbody.gameObject.transform.position + Vector3.up * 100.0f, -Vector3.up, out hit))
+            if (Physics.Raycast(vehicleRigidbody.gameObject.transform.position + Vector3.up * 1000.0f, -Vector3.up, out hit))
             {
                 vehicleRigidbody.gameObject.transform.rotation = Quaternion.identity;
-                vehicleRigidbody.gameObject.transform.position = hit.point + hit.normal * 5.0f;
+                vehicleRigidbody.gameObject.transform.position = hit.point + Vector3.up * 5.0f;
             }
         }
     }
@@ -58,30 +65,48 @@ public class Vehicle : MonoBehaviour
 
         foreach (Transform child in transform)
         {
-            currentModule = child.gameObject.GetComponent<Module>();
-
-            if (currentModule != null)
+            if (child.gameObject.TryGetComponent(out currentModule))
             {
                 modules.Add(currentModule);
+
+                Type type = currentModule.GetType();
+                if (!moduleTypes.ContainsKey(type))
+                {
+                    moduleTypes.Add(type, new List<Module>());
+                    moduleTypes[type].Add(currentModule);
+                }
+                else
+                {
+                    moduleTypes[type].Add(currentModule);
+                }
+
                 currentModule = null;
             }
         }
+    }
+
+    public List<Module> GetAllModulesOfType(Type type)
+    {
+        return moduleTypes[type];
     }
 
     public void RemoveModule(Module module)
     {
         ModifyStats(-module.mass, -module.hp);
         modules.Remove(module);
+        moduleTypes[module.GetType()].Remove(module);
     }
 
     public void AddModule(Module module)
     {
         ModifyStats(module.mass, module.hp);
         modules.Add(module);
+        moduleTypes[module.GetType()].Add(module);
     }
 
     private void SelfDestruct()
     {
+        foreach (Module module in modules) module.Destruct();
         Destroy(gameObject);
     }
 

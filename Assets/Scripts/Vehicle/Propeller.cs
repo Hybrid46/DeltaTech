@@ -6,7 +6,7 @@ public class Propeller : Module
     public float topSpeed = 10.0f;
     public float motorTorque = 10.0f;
 
-    private protected override void Update()
+    public override void Update()
     {
         base.Update();
 

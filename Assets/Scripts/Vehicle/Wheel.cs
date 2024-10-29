@@ -38,7 +38,7 @@ public class CustomWheelSuspension : Module
     [SerializeField] private float actualMotorTorque = 0.0f;
     [SerializeField] private float actualBreakTorque = 0.0f;
 
-    private protected override void Start()
+    public override void Start()
     {
         base.Start();
         m_WheelCollider = GetComponent<WheelCollider>();
@@ -50,12 +50,12 @@ public class CustomWheelSuspension : Module
         m_WheelCollider.mass = StaticUtils.CalcCylinderVolume(wheelWidth, wheelRadius) * 1000;
     }
 
-    private protected override void Update()
+    public override void Update()
     {
         base.Update();
     }
 
-    private protected override void OnCollisionEnter(Collision collision)
+    public override void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
     }

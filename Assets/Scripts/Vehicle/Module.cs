@@ -9,22 +9,27 @@ public class Module : MonoBehaviour
     public float hp;
     public float mass;
 
-    private protected virtual void Start()
+    public virtual void Start()
     {
         m_VehicleRigidbody = transform.root.GetComponent<Rigidbody>();
         m_Vehicle = transform.root.GetComponent<Vehicle>();
         m_Transform = transform;
     }
 
-    private protected virtual void Update()
+    public virtual void Update()
     {        
         CheckHP();
     }
 
-    private protected virtual void OnCollisionEnter(Collision collision)
+    public virtual void OnCollisionEnter(Collision collision)
     {
         hp -= collision.relativeVelocity.magnitude;
         CheckHP();
+    }
+
+    public virtual void Destruct()
+    {
+        Destroy(gameObject);
     }
 
     private protected void CheckHP()

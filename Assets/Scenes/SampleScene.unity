@@ -241,6 +241,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hover1
       objectReference: {fileID: 0}
+    - target: {fileID: 1528180608046929093, guid: e9317553328554f419e1514b2e7cbfed,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 85eb72668affa204b860abb724313b3b, type: 2}
     - target: {fileID: 4889048691240520827, guid: e9317553328554f419e1514b2e7cbfed,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1160,6 +1165,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hover1
       objectReference: {fileID: 0}
+    - target: {fileID: 1528180608046929093, guid: e9317553328554f419e1514b2e7cbfed,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: daa3da9dc5d93434994fb2d29e80686c, type: 2}
     - target: {fileID: 4889048691240520827, guid: e9317553328554f419e1514b2e7cbfed,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2165,6 +2175,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hover1
       objectReference: {fileID: 0}
+    - target: {fileID: 1528180608046929093, guid: e9317553328554f419e1514b2e7cbfed,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 85eb72668affa204b860abb724313b3b, type: 2}
     - target: {fileID: 4889048691240520827, guid: e9317553328554f419e1514b2e7cbfed,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2633,7 +2648,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 85eb72668affa204b860abb724313b3b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3126,7 +3141,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1382385105}
   serializedVersion: 4
-  m_Mass: 100
+  m_Mass: 10
   m_Drag: 0
   m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -3613,13 +3628,13 @@ MonoBehaviour:
     prefabBiomeSettings:
     - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
         type: 3}
-      chance: 0.25
+      chance: 0.8
       height:
         Min: 0
         Max: 1000
     - prefab: {fileID: 1969351348244492967, guid: 586091444457ddf4aac4ebc7d2ae3f82,
         type: 3}
-      chance: 0.6
+      chance: 0.05
       height:
         Min: 20
         Max: 1000
@@ -3634,17 +3649,17 @@ MonoBehaviour:
       scale: 10
       amplitude: 0.05
       minHeight: 0
-      maxHeight: 10
+      maxHeight: 20
     prefabBiomeSettings:
     - prefab: {fileID: 5801903172125242851, guid: 0fe0d9b770c652a418eb1461aee23ec0,
         type: 3}
-      chance: 0.5
+      chance: 0.9
       height:
         Min: 0
         Max: 1000
     - prefab: {fileID: 9010586405513134128, guid: 7bad0f3d63efa0e4b9c7061958cc5cbb,
         type: 3}
-      chance: 0.5
+      chance: 0.1
       height:
         Min: 0
         Max: 1000
@@ -3787,6 +3802,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hover1
       objectReference: {fileID: 0}
+    - target: {fileID: 1528180608046929093, guid: e9317553328554f419e1514b2e7cbfed,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: daa3da9dc5d93434994fb2d29e80686c, type: 2}
     - target: {fileID: 4889048691240520827, guid: e9317553328554f419e1514b2e7cbfed,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4061,7 +4081,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: daa3da9dc5d93434994fb2d29e80686c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

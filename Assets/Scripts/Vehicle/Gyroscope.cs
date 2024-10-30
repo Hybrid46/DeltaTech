@@ -10,14 +10,16 @@ public class Gyroscope : Module
                                                              new PIDController(1f, 1f, 1f, 1f, true, -1f, 1f) };
     public float power = 10;
 
-    private Vector3 targetDirY;
-    private Vector3 currentDirY;
+    [SerializeField] private Vector3 targetDirY;
+    [SerializeField] private Vector3 currentDirY;
 
-    private Vector3 targetDirX;
-    private Vector3 currentDirX;
+    [SerializeField] private Vector3 targetDirX;
+    [SerializeField] private Vector3 currentDirX;
 
-    private Vector3 targetDirZ;
-    private Vector3 currentDirZ;
+    [SerializeField] private Vector3 targetDirZ;
+    [SerializeField] private Vector3 currentDirZ;
+
+    [SerializeField] private float inputX, inputY, inputZ;
 
     public override void Start()
     {
@@ -36,9 +38,9 @@ public class Gyroscope : Module
 
     public void FixedUpdate()
     {
-        AlignY();
         AlignX();
         AlignZ();
+        AlignY();
     }
 
     private void AlignZ()
@@ -49,8 +51,8 @@ public class Gyroscope : Module
         float currentAngle = Vector3.SignedAngle(transform.up, currentDirZ, Vector3.forward);
         float targetAngle = Vector3.SignedAngle(transform.up, targetDirZ, Vector3.forward);
 
-        float input = controllers[2].Update(Time.fixedDeltaTime, currentAngle, targetAngle);
-        m_VehicleRigidbody.AddTorque(0f, 0f, input * power, ForceMode.Force);
+        inputZ = controllers[2].Update(Time.fixedDeltaTime, currentAngle, targetAngle);
+        m_VehicleRigidbody.AddTorque(0f, 0f, inputZ * power, ForceMode.Force);
     }
 
     private void AlignX()
@@ -61,8 +63,8 @@ public class Gyroscope : Module
         float currentAngle = Vector3.SignedAngle(transform.up, currentDirX, Vector3.right);
         float targetAngle = Vector3.SignedAngle(transform.up, targetDirX, Vector3.right);
 
-        float input = controllers[0].Update(Time.fixedDeltaTime, currentAngle, targetAngle);
-        m_VehicleRigidbody.AddTorque(input * power, 0f, 0f, ForceMode.Force);
+        inputX = controllers[0].Update(Time.fixedDeltaTime, currentAngle, targetAngle);
+        m_VehicleRigidbody.AddTorque(inputX * power, 0f, 0f, ForceMode.Force);
     }
 
     private void AlignY()
@@ -70,8 +72,8 @@ public class Gyroscope : Module
         targetDirY = m_VehicleRigidbody.rotation * transform.forward;
         currentDirY = m_VehicleRigidbody.rotation * transform.forward;
 
-        bool turnRight = m_Vehicle.rotationInput < 0f;
-        bool turnLeft = m_Vehicle.rotationInput > 0f;
+        bool turnRight = m_Vehicle.rotationInput > 0f;
+        bool turnLeft = m_Vehicle.rotationInput < 0f;
 
         if (turnRight) targetDirY = m_VehicleRigidbody.rotation * transform.right;
         if (turnLeft) targetDirY = m_VehicleRigidbody.rotation * -transform.right;
@@ -79,8 +81,8 @@ public class Gyroscope : Module
         float currentAngle = Vector3.SignedAngle(transform.forward, currentDirY, Vector3.up);
         float targetAngle = Vector3.SignedAngle(transform.forward, targetDirY, Vector3.up);
 
-        float input = controllers[2].Update(Time.fixedDeltaTime, currentAngle, targetAngle);
-        m_VehicleRigidbody.AddTorque(0f, input * power, 0f, ForceMode.Force);
+        inputY = controllers[1].Update(Time.fixedDeltaTime, currentAngle, targetAngle);
+        m_VehicleRigidbody.AddTorque(0f, inputY * power, 0f, ForceMode.Force);
     }
 
     public PIDController[] GetControllers() => controllers;

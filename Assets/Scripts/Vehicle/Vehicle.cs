@@ -54,6 +54,8 @@ public class Vehicle : MonoBehaviour
             {
                 vehicleRigidbody.gameObject.transform.rotation = Quaternion.identity;
                 vehicleRigidbody.gameObject.transform.position = hit.point + Vector3.up * 5.0f;
+                vehicleRigidbody.angularVelocity = Vector3.zero;
+                vehicleRigidbody.linearVelocity = Vector3.zero;
             }
         }
     }
